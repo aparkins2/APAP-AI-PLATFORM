@@ -1,12 +1,9 @@
 # Nixpacks configuration for Coolify deployment of APAP AI
 [phases.setup]
-nixPkgs = ["curl"]
-
-[variables]
-NIXPACKS_NODE_VERSION = "20"
+nixPkgs = ["nodejs_20", "curl"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm install --include=dev"]
 
 [phases.build]
 cmds = ["npm run build"]
