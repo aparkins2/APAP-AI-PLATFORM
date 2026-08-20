@@ -1,0 +1,69 @@
+# ==============================================================================
+# Coolify-Optimized Support Services for APAP AI (InterServer VPS)
+# Deploy this stack in Coolify: Projects -> New Resource -> Docker Compose
+# The gateway/app itself is deployed separately via Coolify Git + Nixpacks.
+# ==============================================================================
+version: '3.8'
+
+services:
+  # Internal Ollama Inference Engine (Isolated from public internet)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: apap-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    expose:
+      - "11434"
+    networks:
+      - apap-ai-network
+    deploy:
+      resources:
+        reservations:
+          memory: 4G
+        limits:
+          memory: 12G
+
+  # Open WebUI Admin Portal (ai-admin.apapmedia.com)
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: apap-open-webui
+    restart: unless-stopped
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - WEBUI_AUTH=true
+      - ENABLE_SIGNUP=false
+    volumes:
+      - open_webui_data:/app/backend/data
+    depends_on:
+      - ollama
+    expose:
+      - "8080"
+    networks:
+      - apap-ai-network
+    labels:
+      - "coolify.managed=true"
+      - "coolify.domain=https://ai-admin.apapmedia.com"
+
+  # Redis for Per-App Token Rate Limiting
+  redis:
+    image: redis:7-alpine
+    container_name: apap-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    networks:
+      - apap-ai-network
+
+networks:
+  apap-ai-network:
+    name: apap-ai-network
+    driver: bridge
+
+volumes:
+  ollama_data:
+  open_webui_data:
+  redis_data:

@@ -1,0 +1,12 @@
+# Nixpacks configuration for Coolify deployment of APAP AI
+[phases.setup]
+nixPkgs = ["nodejs-20_x", "curl"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npx tsx server.ts"
