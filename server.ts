@@ -27,7 +27,7 @@ async function buildHealth(): Promise<ServerHealth> {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
       signal: controller.signal,
     });
