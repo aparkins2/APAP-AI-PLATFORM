@@ -28,45 +28,59 @@ export function App() {
   const [logs, setLogs] = useState<RequestLog[]>(INITIAL_LOGS);
   const [deploymentSteps, setDeploymentSteps] = useState<DeploymentStep[]>(DEPLOYMENT_STEPS);
 
-  // Subtle telemetry simulation heartbeat
+  // Load real dashboard data from the gateway on mount
   useEffect(() => {
-    const interval = setInterval(() => {
-      setHealth((prev) => {
-        const cpuJitter = +(20 + Math.random() * 8).toFixed(1);
-        const ramJitter = +(4.7 + Math.random() * 0.3).toFixed(1);
-        const tokJitter = +(36 + Math.random() * 6).toFixed(1);
-        const latJitter = Math.round(1350 + Math.random() * 150);
+    const loadData = async () => {
+      try {
+        const [healthRes, appsRes, templatesRes, logsRes] = await Promise.all([
+          fetch('/health'),
+          fetch('/v1/apps'),
+          fetch('/v1/templates'),
+          fetch('/v1/logs'),
+        ]);
 
-        return {
-          ...prev,
-          cpuUsagePct: cpuJitter,
-          ramUsageGb: {
-            used: ramJitter,
-            total: prev.ramUsageGb.total,
-          },
-          tokensPerSec: tokJitter,
-          avgLatencyMs: latJitter,
-          uptimeSeconds: prev.uptimeSeconds + 3,
-        };
-      });
-    }, 4000);
+        if (healthRes.ok) {
+          const healthData = (await healthRes.json()) as ServerHealth;
+          setHealth(healthData);
+        }
+        if (appsRes.ok) setApps(await appsRes.json());
+        if (templatesRes.ok) setTemplates(await templatesRes.json());
+        if (logsRes.ok) setLogs(await logsRes.json());
+      } catch (err) {
+        console.error('Failed to load dashboard data', err);
+      }
+    };
 
-    return () => clearInterval(interval);
+    loadData();
+
+    const healthInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          const data = (await res.json()) as ServerHealth;
+          setHealth(data);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 5000);
+
+    return () => clearInterval(healthInterval);
   }, []);
 
-  const handleRefreshHealth = () => {
+  const handleRefreshHealth = async () => {
     setIsRefreshingHealth(true);
-    setTimeout(() => {
-      setHealth((prev) => ({
-        ...prev,
-        status: 'ok',
-        ollama: true,
-        database: true,
-        redis: true,
-        avgLatencyMs: Math.round(1100 + Math.random() * 200),
-      }));
+    try {
+      const res = await fetch('/health');
+      if (res.ok) {
+        const data = (await res.json()) as ServerHealth;
+        setHealth(data);
+      }
+    } catch (err) {
+      console.error('Failed to refresh health', err);
+    } finally {
       setIsRefreshingHealth(false);
-    }, 600);
+    }
   };
 
   const handleAddApp = (newApp: AppEntity) => {

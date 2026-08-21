@@ -30,6 +30,8 @@ export interface GenerateResult {
     promptEvalDurationNs: number;
     evalDurationNs: number;
   };
+  appId?: string;
+  appName?: string;
   error?: string;
   statusCode: number;
 }
@@ -168,6 +170,9 @@ async function callOllama(payload: {
   };
 }
 
+// In-memory per-app rate limit tracking (resets on restart)
+const rateLimitBuckets = new Map<string, number[]>();
+
 // Full APAP AI Gateway execution pipeline
 export async function executeGatewayRequest(
   params: GenerateParams,
@@ -177,7 +182,7 @@ export async function executeGatewayRequest(
   const start = performance.now();
   const reqId = crypto.randomUUID();
 
-  // 1. Authentication Check
+  // 1. Authentication & Authorization
   if (!params.apiKey) {
     return {
       success: false,
@@ -194,12 +199,78 @@ export async function executeGatewayRequest(
     };
   }
 
-  // Verify API Key format (master or valid key)
   const masterAdminKey = process.env.MASTER_ADMIN_KEY;
   const isMaster = masterAdminKey && params.apiKey === masterAdminKey;
-  const isLiveKey = params.apiKey.startsWith('apapai_live_');
+  let appId: string | undefined;
+  let appName: string | undefined;
 
-  if (!isMaster && !isLiveKey) {
+  if (isMaster) {
+    appId = 'master-admin';
+    appName = 'Master Admin';
+  } else if (params.apiKey.startsWith('apapai_live_')) {
+    const keyHash = await sha256Hex(params.apiKey);
+    const matchingApp = apps.find((a) => a.apiKeyHash === keyHash);
+
+    if (!matchingApp) {
+      return {
+        success: false,
+        requestId: reqId,
+        task: params.task,
+        modelClass: 'fast',
+        model: 'qwen3.5:4b',
+        result: '',
+        processingMs: Math.round(performance.now() - start),
+        tokens: { prompt: 0, completion: 0, total: 0 },
+        metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
+        error: 'Invalid API key.',
+        statusCode: 401,
+      };
+    }
+
+    if (!matchingApp.active) {
+      return {
+        success: false,
+        requestId: reqId,
+        task: params.task,
+        modelClass: 'fast',
+        model: 'qwen3.5:4b',
+        result: '',
+        processingMs: Math.round(performance.now() - start),
+        tokens: { prompt: 0, completion: 0, total: 0 },
+        metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
+        error: 'Application account is disabled.',
+        statusCode: 403,
+      };
+    }
+
+    // Rate limit per minute
+    const now = Date.now();
+    const windowStart = now - 60_000;
+    const timestamps = rateLimitBuckets.get(matchingApp.id) || [];
+    const recent = timestamps.filter((t) => t > windowStart);
+    if (recent.length >= matchingApp.rateLimitPerMinute) {
+      return {
+        success: false,
+        requestId: reqId,
+        task: params.task,
+        modelClass: 'fast',
+        model: 'qwen3.5:4b',
+        result: '',
+        processingMs: Math.round(performance.now() - start),
+        tokens: { prompt: 0, completion: 0, total: 0 },
+        metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
+        appId: matchingApp.id,
+        appName: matchingApp.name,
+        error: `Rate limit exceeded. Limit is ${matchingApp.rateLimitPerMinute} requests per minute.`,
+        statusCode: 429,
+      };
+    }
+    recent.push(now);
+    rateLimitBuckets.set(matchingApp.id, recent);
+
+    appId = matchingApp.id;
+    appName = matchingApp.name;
+  } else {
     return {
       success: false,
       requestId: reqId,
@@ -213,26 +284,6 @@ export async function executeGatewayRequest(
       error: 'Invalid API key format. Must begin with apapai_live_ or match MASTER_ADMIN_KEY',
       statusCode: 401,
     };
-  }
-
-  // Find active application (skip for master admin)
-  if (!isMaster) {
-    const matchingApp = apps.find((a) => a.active);
-    if (!matchingApp) {
-      return {
-        success: false,
-        requestId: reqId,
-        task: params.task,
-        modelClass: 'fast',
-        model: 'qwen3.5:4b',
-        result: '',
-        processingMs: Math.round(performance.now() - start),
-        tokens: { prompt: 0, completion: 0, total: 0 },
-        metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
-        error: 'Application account is disabled or unauthorized.',
-        statusCode: 403,
-      };
-    }
   }
 
   // 2. Resolve Template & Model Routing
@@ -304,6 +355,8 @@ export async function executeGatewayRequest(
         promptEvalDurationNs: ollamaResult.promptEvalDurationNs,
         evalDurationNs: ollamaResult.evalDurationNs,
       },
+      appId,
+      appName,
       statusCode: 200,
     };
   } catch (error: any) {
@@ -317,6 +370,8 @@ export async function executeGatewayRequest(
       processingMs: Math.round(performance.now() - start),
       tokens: { prompt: 0, completion: 0, total: 0 },
       metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
+      appId,
+      appName,
       error: error.message || 'Ollama inference failed',
       statusCode: 500,
     };

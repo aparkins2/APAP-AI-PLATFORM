@@ -2,8 +2,10 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import os from 'os';
 import { executeGatewayRequest } from './src/services/aiEngine.ts';
 import { INITIAL_APPS, INITIAL_TEMPLATES } from './src/data/initialData.ts';
+import type { RequestLog, ServerHealth, AppEntity } from './src/types/index.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,10 +16,14 @@ const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://ollama:11434';
 
 app.use(express.json({ limit: '10mb' }));
 
-// Health Check endpoint for Coolify / Docker / Traefik
-app.get('/health', async (_req: Request, res: Response) => {
+// In-memory request log (lost on container restart)
+let requestLogs: RequestLog[] = [];
+
+// Helper to build a ServerHealth snapshot
+async function buildHealth(): Promise<ServerHealth> {
   let ollamaOnline = false;
-  let availableModels: string[] = [];
+  const totalMem = os.totalmem() / 1024 / 1024 / 1024;
+  const freeMem = os.freemem() / 1024 / 1024 / 1024;
 
   try {
     const controller = new AbortController();
@@ -26,29 +32,66 @@ app.get('/health', async (_req: Request, res: Response) => {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-
-    if (response.ok) {
-      const data = (await response.json()) as { models?: { name: string }[] };
-      ollamaOnline = true;
-      availableModels = (data.models || []).map((m) => m.name);
-    }
+    ollamaOnline = response.ok;
   } catch {
     ollamaOnline = false;
   }
 
-  res.status(200).json({
-    status: 'ok',
-    service: 'APAP AI Server & Gateway',
-    timestamp: new Date().toISOString(),
-    uptime: Math.floor(process.uptime()),
-    ollama: {
-      url: OLLAMA_BASE_URL,
-      connected: ollamaOnline,
-      models: availableModels,
+  const status = ollamaOnline ? 'ok' : 'degraded';
+
+  return {
+    status,
+    service: 'apap-ai-gateway',
+    ollama: ollamaOnline,
+    database: true,
+    redis: true,
+    fastModel: process.env.AI_FAST_MODEL || 'qwen3.5:4b',
+    smartModel: process.env.AI_SMART_MODEL || 'qwen3.5:4b',
+    uptimeSeconds: Math.floor(process.uptime()),
+    cpuUsagePct: 0,
+    ramUsageGb: {
+      used: Math.round((totalMem - freeMem) * 10) / 10,
+      total: Math.round(totalMem * 10) / 10,
     },
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'production',
-  });
+    gpuDetected: false,
+    activeRequests: 0,
+    tokensPerSec: 0,
+    avgLatencyMs: 0,
+  };
+}
+
+// Health Check endpoint for Coolify / Docker / Traefik
+app.get('/health', async (_req: Request, res: Response) => {
+  const health = await buildHealth();
+  res.status(health.status === 'ok' ? 200 : 503).json(health);
+});
+
+// List available Ollama models
+app.get('/v1/models', async (_req: Request, res: Response) => {
+  try {
+    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
+    if (!response.ok) throw new Error(`Ollama status ${response.status}`);
+    const data = (await response.json()) as { models?: { name: string }[] };
+    res.json({ models: (data.models || []).map((m) => m.name) });
+  } catch (error: any) {
+    res.status(503).json({ error: error.message });
+  }
+});
+
+// List prompt templates
+app.get('/v1/templates', (_req: Request, res: Response) => {
+  res.json(INITIAL_TEMPLATES);
+});
+
+// List apps without exposing real API key hashes
+app.get('/v1/apps', (_req: Request, res: Response) => {
+  const safeApps: AppEntity[] = INITIAL_APPS.map((app) => ({ ...app, apiKeyHash: 'hidden' }));
+  res.json(safeApps);
+});
+
+// Recent request logs
+app.get('/v1/logs', (_req: Request, res: Response) => {
+  res.json(requestLogs.slice(0, 100));
 });
 
 // Generate endpoint - forwards to Ollama via the APAP AI Engine
@@ -95,6 +138,36 @@ app.post('/v1/generate', async (req: Request, res: Response) => {
     INITIAL_APPS,
     INITIAL_TEMPLATES
   );
+
+  // Log the request for the dashboard
+  const log: RequestLog = {
+    id: crypto.randomUUID(),
+    appId: result.appId || 'unknown',
+    appName: result.appName || 'Unknown',
+    requestId: result.requestId,
+    endpoint: '/v1/generate',
+    task: result.task,
+    model: result.model,
+    modelClass: result.modelClass,
+    status: result.statusCode as RequestLog['status'],
+    promptTokens: result.tokens.prompt,
+    completionTokens: result.tokens.completion,
+    totalTokens: result.tokens.total,
+    totalDurationMs: result.processingMs,
+    loadDurationMs: Math.round((result.metrics.loadDurationNs || 0) / 1_000_000),
+    promptEvalDurationMs: Math.round((result.metrics.promptEvalDurationNs || 0) / 1_000_000),
+    evalDurationMs: Math.round((result.metrics.evalDurationNs || 0) / 1_000_000),
+    createdAt: new Date().toISOString(),
+    inputPayloadSummary: JSON.stringify(req.body.input || {}).slice(0, 120),
+    outputSummary:
+      typeof result.result === 'string'
+        ? result.result.slice(0, 120)
+        : JSON.stringify(result.result || '').slice(0, 120),
+    errorMessage: result.error,
+  };
+
+  requestLogs.unshift(log);
+  if (requestLogs.length > 500) requestLogs = requestLogs.slice(0, 500);
 
   res.status(result.statusCode).json(result);
 });
