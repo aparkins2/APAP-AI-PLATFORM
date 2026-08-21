@@ -129,13 +129,15 @@ async function callOllama(payload: {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  const response = await fetch(`${baseURL}/api/generate`, {
+  const response = await fetch(`${baseURL}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: payload.model,
-      system: payload.systemPrompt,
-      prompt: payload.userPrompt,
+      messages: [
+        { role: 'system', content: payload.systemPrompt },
+        { role: 'user', content: payload.userPrompt },
+      ],
       stream: false,
       options: {
         temperature: payload.temperature,
@@ -156,7 +158,7 @@ async function callOllama(payload: {
   const data = (await response.json()) as any;
 
   return {
-    response: data.response || '',
+    response: data.message?.content || '',
     promptTokens: data.prompt_eval_count || 0,
     completionTokens: data.eval_count || 0,
     totalDurationNs: data.total_duration || 0,
