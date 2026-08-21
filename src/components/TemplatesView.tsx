@@ -197,12 +197,12 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                   <h3 className="font-mono text-sm font-bold text-amber-300 flex items-center gap-1.5">
                     {tmpl.name}
                   </h3>
-                  <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                  <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
                     {tmpl.category}
                   </span>
                 </div>
                 <span
-                  className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold ${
+                  className={`px-2 py-0.5 rounded font-mono text-xs font-bold ${
                     tmpl.modelClass === 'smart'
                       ? 'bg-purple-950 text-purple-300 border border-purple-800/70'
                       : 'bg-emerald-950 text-emerald-300 border border-emerald-800/70'
@@ -215,11 +215,11 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
               <p className="text-xs text-slate-300 line-clamp-2">{tmpl.description}</p>
 
               {/* System Prompt Preview */}
-              <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 text-[11px] font-mono text-slate-400 relative">
+              <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 text-sm font-mono text-slate-400 relative">
                 <div className="line-clamp-3 leading-relaxed">{tmpl.systemPrompt}</div>
                 <button
                   onClick={() => copyTemplateSystem(tmpl.systemPrompt, tmpl.id)}
-                  className="absolute top-1.5 right-1.5 p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] cursor-pointer"
+                  className="absolute top-1.5 right-1.5 p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs cursor-pointer"
                   title="Copy system prompt"
                 >
                   {copiedId === tmpl.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -228,11 +228,11 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
 
               {/* Variables */}
               <div className="flex flex-wrap items-center gap-1">
-                <span className="text-[10px] text-slate-500 font-medium mr-1">Variables:</span>
+                <span className="text-xs text-slate-500 font-medium mr-1">Variables:</span>
                 {tmpl.variables.map((v) => (
                   <span
                     key={v}
-                    className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-[10px] border border-slate-700"
+                    className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-xs border border-slate-700"
                   >
                     {`{{${v}}}`}
                   </span>
@@ -242,7 +242,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
 
             {/* Bottom Actions */}
             <div className="flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs">
-              <div className="text-[10px] text-slate-400 font-mono">
+              <div className="text-xs text-slate-400 font-mono">
                 Temp: <span className="text-slate-200">{tmpl.temperature}</span> • Max:{' '}
                 <span className="text-slate-200">{tmpl.maxTokens}</span>
               </div>
@@ -250,7 +250,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => onSendToPlayground(tmpl.name)}
-                  className="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-sm font-semibold flex items-center gap-1 cursor-pointer"
                   title="Test template in sandbox playground"
                 >
                   <Play className="w-3 h-3" /> Test

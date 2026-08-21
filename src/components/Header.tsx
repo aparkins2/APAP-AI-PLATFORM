@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2">
             <h1 className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
               APAP AI Server
-              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/80">
+              <span className="text-xs uppercase font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/80">
                 Gateway v1.0
               </span>
             </h1>
@@ -77,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="font-medium font-mono text-xs">
             {isRefreshing ? 'Pinging /health...' : 'Gateway Healthy (200 OK)'}
           </span>
-          <span className="text-[10px] text-emerald-400/80 bg-emerald-900/50 px-1.5 py-0.5 rounded font-mono">
+          <span className="text-xs text-emerald-400/80 bg-emerald-900/50 px-1.5 py-0.5 rounded font-mono">
             {health.avgLatencyMs}ms
           </span>
         </button>

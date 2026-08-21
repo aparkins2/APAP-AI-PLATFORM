@@ -134,7 +134,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950 font-sans">
       {/* Global Header */}
       <Header
         health={health}
@@ -153,7 +153,7 @@ export function App() {
           logsCount={logs.length}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 max-w-7xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto p-6 lg:p-10 max-w-8xl mx-auto w-full">
           {activeTab === 'dashboard' && (
             <DashboardView
               health={health}

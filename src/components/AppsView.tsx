@@ -200,7 +200,7 @@ export const AppsView: React.FC<AppsViewProps> = ({
             </button>
           </div>
 
-          <div className="text-[11px] font-mono text-slate-400">
+          <div className="text-sm font-mono text-slate-400">
             SHA-256 DB Hash: <span className="text-slate-300">{createdKeyData.hash}</span>
           </div>
         </div>
@@ -222,7 +222,7 @@ export const AppsView: React.FC<AppsViewProps> = ({
       {/* Apps Table */}
       <div className="rounded-xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-sm">
             <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-medium">
               <tr>
                 <th className="py-3 px-4">Application Name</th>
@@ -238,9 +238,9 @@ export const AppsView: React.FC<AppsViewProps> = ({
                 <tr key={app.id} className="hover:bg-slate-800/40 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="font-semibold text-white">{app.name}</div>
-                    <div className="text-[11px] text-slate-400">{app.description}</div>
+                    <div className="text-sm text-slate-400">{app.description}</div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono text-[11px]">
+                  <td className="py-3.5 px-4 font-mono text-sm">
                     <div className="text-cyan-300 font-bold">{app.slug}</div>
                     <div className="text-slate-400">{app.apiKeyPrefix}</div>
                   </td>
@@ -255,7 +255,7 @@ export const AppsView: React.FC<AppsViewProps> = ({
                   <td className="py-3.5 px-4">
                     <button
                       onClick={() => handleToggleActive(app)}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold transition-all cursor-pointer ${
                         app.active
                           ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
                           : 'bg-red-950 text-red-400 border border-red-800/80'
@@ -364,14 +364,14 @@ export const AppsView: React.FC<AppsViewProps> = ({
                   onChange={(e) => setNewRateLimit(Number(e.target.value))}
                   className="w-full accent-emerald-500"
                 />
-                <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                <div className="flex justify-between text-xs text-slate-500 font-mono">
                   <span>10 / min</span>
                   <span>60 / min (Standard)</span>
                   <span>300 / min</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-sm text-slate-400 leading-relaxed">
                 Upon creation, a fresh 32-character random key (<code className="text-emerald-400">apapai_live_...</code>) will be generated. The raw key is shown only once and its SHA-256 hash is written to <code className="text-slate-200">apap_ai.apps</code>.
               </div>
 

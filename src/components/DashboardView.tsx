@@ -106,7 +106,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-2xl font-bold text-white font-mono">200 OK</span>
             <span className="text-xs text-emerald-400 font-medium">99.9% Uptime</span>
           </div>
-          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
+          <div className="mt-3 flex items-center justify-between text-sm text-slate-400 border-t border-slate-800/80 pt-2">
             <span>Fast Model</span>
             <span className="font-mono text-amber-300 font-semibold">{health.fastModel}</span>
           </div>
@@ -122,7 +122,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-2xl font-bold text-white font-mono">{avgDuration}ms</span>
             <span className="text-xs text-cyan-400 font-medium">CPU Optimized</span>
           </div>
-          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
+          <div className="mt-3 flex items-center justify-between text-sm text-slate-400 border-t border-slate-800/80 pt-2">
             <span>Throughput</span>
             <span className="font-mono text-cyan-300 font-semibold">{health.tokensPerSec} tok/s</span>
           </div>
@@ -138,7 +138,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-2xl font-bold text-white font-mono">{activeAppsCount} Active</span>
             <span className="text-xs text-slate-400">of {apps.length} Total</span>
           </div>
-          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
+          <div className="mt-3 flex items-center justify-between text-sm text-slate-400 border-t border-slate-800/80 pt-2">
             <span>Key Encryption</span>
             <span className="font-mono text-indigo-300 font-semibold">SHA-256 Hashed</span>
           </div>
@@ -154,7 +154,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-2xl font-bold text-white font-mono">{templates.length}</span>
             <span className="text-xs text-amber-400 font-medium">Standardized</span>
           </div>
-          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
+          <div className="mt-3 flex items-center justify-between text-sm text-slate-400 border-t border-slate-800/80 pt-2">
             <span>Model Router</span>
             <span className="font-mono text-amber-300 font-semibold">Fast (4B) / Smart</span>
           </div>
@@ -185,7 +185,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-center">
             {/* Column 1: Client Apps */}
             <div className="space-y-2">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
+              <div className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
                 APAP Client Apps
               </div>
               <div className="space-y-1.5">
@@ -203,7 +203,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Arrow 1 */}
             <div className="hidden lg:flex flex-col items-center justify-center text-slate-600 space-y-1">
-              <span className="text-[10px] font-mono text-cyan-400">HTTPS + Bearer</span>
+              <span className="text-xs font-mono text-cyan-400">HTTPS + Bearer</span>
               <div className="w-full h-0.5 bg-gradient-to-r from-slate-700 via-cyan-500 to-slate-700" />
               <ArrowRight className="w-4 h-4 text-cyan-400" />
             </div>
@@ -215,9 +215,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
               <div>
                 <h4 className="text-xs font-bold text-white">APAP AI Gateway</h4>
-                <p className="text-[10px] text-cyan-300 font-mono">ai.apapmedia.com (Port 3100)</p>
+                <p className="text-xs text-cyan-300 font-mono">ai.apapmedia.com (Port 3100)</p>
               </div>
-              <div className="text-[10px] text-slate-400 text-left space-y-1 bg-slate-950/60 p-2 rounded border border-slate-800">
+              <div className="text-xs text-slate-400 text-left space-y-1 bg-slate-950/60 p-2 rounded border border-slate-800">
                 <div className="flex items-center gap-1.5 text-emerald-400">
                   <CheckCircle2 className="w-3 h-3" /> Auth: SHA-256
                 </div>
@@ -235,14 +235,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Arrow 2 */}
             <div className="hidden lg:flex flex-col items-center justify-center text-slate-600 space-y-1">
-              <span className="text-[10px] font-mono text-emerald-400">Docker Bridge (Hidden)</span>
+              <span className="text-xs font-mono text-emerald-400">Docker Bridge (Hidden)</span>
               <div className="w-full h-0.5 bg-gradient-to-r from-slate-700 via-emerald-500 to-slate-700" />
               <ArrowRight className="w-4 h-4 text-emerald-400" />
             </div>
 
             {/* Column 3: Ollama & Models */}
             <div className="space-y-2">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
+              <div className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
                 Private Inference Node
               </div>
               <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center space-y-2">
@@ -250,15 +250,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <Zap className="w-4 h-4 text-amber-400" />
                   <span className="text-xs font-bold text-white">Ollama Engine</span>
                 </div>
-                <div className="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded border border-slate-800">
+                <div className="text-xs font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded border border-slate-800">
                   http://ollama:11434 (Internal)
                 </div>
                 <div className="space-y-1 text-left pt-1">
-                  <div className="px-2 py-1.5 rounded bg-slate-800/80 border border-slate-700/60 text-[11px] flex items-center justify-between text-slate-200">
+                  <div className="px-2 py-1.5 rounded bg-slate-800/80 border border-slate-700/60 text-sm flex items-center justify-between text-slate-200">
                     <span>Fast:</span>
                     <span className="font-mono text-amber-300 font-semibold">qwen3.5:4b</span>
                   </div>
-                  <div className="px-2 py-1.5 rounded bg-slate-800/80 border border-slate-700/60 text-[11px] flex items-center justify-between text-slate-200">
+                  <div className="px-2 py-1.5 rounded bg-slate-800/80 border border-slate-700/60 text-sm flex items-center justify-between text-slate-200">
                     <span>Smart:</span>
                     <span className="font-mono text-cyan-300 font-semibold">qwen3.5:4b</span>
                   </div>
@@ -317,7 +317,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 italic">
+          <p className="text-sm text-slate-400 italic">
             The /health endpoint is publicly queryable by monitoring systems without exposing internal tokens or database credentials.
           </p>
         </div>
@@ -329,7 +329,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Zap className="w-4 h-4 text-cyan-400" />
               Dynamic Task Routing Strategy
             </h3>
-            <span className="text-[11px] text-slate-400 font-mono">Zero App Code Changes</span>
+            <span className="text-sm text-slate-400 font-mono">Zero App Code Changes</span>
           </div>
 
           <div className="space-y-2">
@@ -337,11 +337,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2">
                 <div>
                   <span className="font-semibold text-slate-200">Fast Class Tasks</span>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-sm text-slate-400">
                     stream-title, chat-reply, moderation, youtube-tags, social-caption, dj-liner
                   </p>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono text-[10px] font-semibold">
+                <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono text-xs font-semibold">
                   qwen3.5:4b
                 </span>
               </div>
@@ -349,18 +349,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <span className="font-semibold text-slate-200">Smart Class Tasks</span>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-sm text-slate-400">
                     run-of-show, podcast-summary, long-summary, document-analysis
                   </p>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[10px] font-semibold">
+                <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-xs font-semibold">
                   qwen3.5:4b → 9B
                 </span>
               </div>
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-400">
+          <p className="text-sm text-slate-400">
             When hardware upgrades to GPU inference occur, changing <code className="text-cyan-300">AI_SMART_MODEL=qwen3.5:9b</code> in <code className="text-slate-300">.env</code> updates all APAP services instantly.
           </p>
         </div>
@@ -382,7 +382,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-800 text-slate-400 font-medium">
                 <th className="pb-2.5">Time</th>
@@ -394,7 +394,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <th className="pb-2.5">Tokens</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+            <tbody className="divide-y divide-slate-800/60 font-mono text-sm">
               {logs.slice(0, 5).map((log) => (
                 <tr key={log.id} className="hover:bg-slate-800/40 text-slate-300">
                   <td className="py-2.5 text-slate-400">{log.createdAt.split('T')[1].replace('Z', '')}</td>

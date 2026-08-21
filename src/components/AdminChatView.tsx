@@ -157,7 +157,7 @@ export const AdminChatView: React.FC = () => {
 
           <div className="space-y-1">
             <label className="text-slate-300 font-medium">Direct Ollama Target</label>
-            <div className="bg-slate-950 px-3 py-1.5 rounded-lg font-mono text-slate-400 border border-slate-800 text-[11px]">
+            <div className="bg-slate-950 px-3 py-1.5 rounded-lg font-mono text-slate-400 border border-slate-800 text-sm">
               http://ollama:11434
             </div>
           </div>
@@ -173,7 +173,7 @@ export const AdminChatView: React.FC = () => {
               return (
                 <div
                   key={msg.id}
-                  className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 text-slate-400 text-[11px] font-mono flex items-center gap-2"
+                  className="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800 text-slate-400 text-sm font-mono flex items-center gap-2"
                 >
                   <Info className="w-4 h-4 text-slate-500 shrink-0" />
                   <span>System: {msg.content}</span>
@@ -202,7 +202,7 @@ export const AdminChatView: React.FC = () => {
                       : 'bg-emerald-600 text-white font-medium'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-4 text-[10px] opacity-75 font-mono mb-1">
+                  <div className="flex items-center justify-between gap-4 text-xs opacity-75 font-mono mb-1">
                     <span>{isAssistant ? `APAP AI (${msg.model || selectedModel})` : 'APAP Staff Member'}</span>
                     <span>{msg.timestamp}</span>
                   </div>

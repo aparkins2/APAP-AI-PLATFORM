@@ -160,35 +160,35 @@ export const DeploymentView: React.FC<DeploymentViewProps> = ({
             {/* Architecture Highlights */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
-                <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <div className="text-sm text-slate-400 flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-emerald-400" /> Gateway Domain
                 </div>
                 <div className="text-xs font-mono font-bold text-white mt-1">ai.apapmedia.com</div>
-                <div className="text-[10px] text-emerald-400 mt-0.5">Traefik Port 3000 (SSL Auto)</div>
+                <div className="text-xs text-emerald-400 mt-0.5">Traefik Port 3000 (SSL Auto)</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
-                <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <div className="text-sm text-slate-400 flex items-center gap-1.5">
                   <Shield className="w-3.5 h-3.5 text-purple-400" /> Admin Interface
                 </div>
                 <div className="text-xs font-mono font-bold text-white mt-1">ai-admin.apapmedia.com</div>
-                <div className="text-[10px] text-purple-400 mt-0.5">Open WebUI Port 8080</div>
+                <div className="text-xs text-purple-400 mt-0.5">Open WebUI Port 8080</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
-                <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <div className="text-sm text-slate-400 flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5 text-amber-400" /> Ollama Security
                 </div>
                 <div className="text-xs font-mono font-bold text-white mt-1">http://ollama:11434</div>
-                <div className="text-[10px] text-amber-400 mt-0.5">0 Exposed Public Ports</div>
+                <div className="text-xs text-amber-400 mt-0.5">0 Exposed Public Ports</div>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
-                <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <div className="text-sm text-slate-400 flex items-center gap-1.5">
                   <HardDrive className="w-3.5 h-3.5 text-cyan-400" /> VPS Hardware
                 </div>
                 <div className="text-xs font-mono font-bold text-white mt-1">4-8 vCPU / 8-16 GB RAM</div>
-                <div className="text-[10px] text-cyan-400 mt-0.5">8 GB Swapfile Configured</div>
+                <div className="text-xs text-cyan-400 mt-0.5">8 GB Swapfile Configured</div>
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@ export const DeploymentView: React.FC<DeploymentViewProps> = ({
                     Phase 1: InterServer VPS Provisioning & System Hardening (SSH)
                   </h4>
                 </div>
-                <span className="text-[11px] text-slate-400 font-mono">Ubuntu 22.04 / 24.04 LTS</span>
+                <span className="text-sm text-slate-400 font-mono">Ubuntu 22.04 / 24.04 LTS</span>
               </div>
               <p className="text-xs text-slate-300">
                 Connect via SSH as <code className="text-cyan-300">root</code> and execute the automated InterServer setup script (or run commands manually to configure UFW firewall and 8GB swap):
@@ -253,7 +253,7 @@ ufw --force enable`}
                     Phase 2: Install Coolify via 1-Line Installer
                   </h4>
                 </div>
-                <span className="text-[11px] text-slate-400 font-mono">Port 8000</span>
+                <span className="text-sm text-slate-400 font-mono">Port 8000</span>
               </div>
               <p className="text-xs text-slate-300">
                 Run Coolify's official automated script to install Docker Engine, Traefik Reverse Proxy, and the Coolify Dashboard:
@@ -270,7 +270,7 @@ ufw --force enable`}
                   {copiedSnippet === 'step2-cmd' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
               </div>
-              <div className="text-[11px] text-slate-400">
+              <div className="text-sm text-slate-400">
                 After completion, navigate to <code className="text-white font-mono">http://&lt;YOUR_VPS_IP&gt;:8000</code> in your browser to create the Root Admin Account.
               </div>
             </div>
@@ -286,15 +286,15 @@ ufw --force enable`}
                     Phase 3: DNS Records Configuration
                   </h4>
                 </div>
-                <span className="text-[11px] text-slate-400">DNS Management Console</span>
+                <span className="text-sm text-slate-400">DNS Management Console</span>
               </div>
               <p className="text-xs text-slate-300">
                 Point your domain DNS A records to your InterServer VPS IP address:
               </p>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-950 border-b border-slate-800 font-mono text-[11px] text-slate-400">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-950 border-b border-slate-800 font-mono text-sm text-slate-400">
                     <tr>
                       <th className="p-2.5">Subdomain</th>
                       <th className="p-2.5">Type</th>
@@ -302,7 +302,7 @@ ufw --force enable`}
                       <th className="p-2.5">Coolify Service</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                  <tbody className="divide-y divide-slate-800/60 font-mono text-sm">
                     <tr>
                       <td className="p-2.5 text-white font-bold">ai.apapmedia.com</td>
                       <td className="p-2.5 text-blue-400">A</td>
@@ -331,7 +331,7 @@ ufw --force enable`}
                     Phase 4: Create Coolify Docker Compose Resource & Pull LLM Models
                   </h4>
                 </div>
-                <span className="text-[11px] text-emerald-400 font-mono">1-Click Deploy</span>
+                <span className="text-sm text-emerald-400 font-mono">1-Click Deploy</span>
               </div>
               <p className="text-xs text-slate-300">
                 1. In Coolify: <strong>Projects</strong> &rarr; <strong>+ Add Project</strong> &rarr; <strong>+ New Resource</strong> &rarr; Select <strong>Docker Compose</strong>.  
@@ -441,7 +441,7 @@ docker exec -it apap-ollama ollama list`}
                             STEP {step.id}
                           </span>
                           <span className="text-xs font-bold text-white">{step.title}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                          <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
                             {step.category}
                           </span>
                         </div>
@@ -453,7 +453,7 @@ docker exec -it apap-ollama ollama list`}
                   {/* Command or Code */}
                   {step.command && (
                     <div className="relative">
-                      <pre className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-cyan-300 overflow-x-auto">
+                      <pre className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 font-mono text-sm text-cyan-300 overflow-x-auto">
                         {step.command}
                       </pre>
                       <button
@@ -472,7 +472,7 @@ docker exec -it apap-ollama ollama list`}
 
                   {step.codeBlock && (
                     <div className="relative">
-                      <pre className="bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto max-h-48 leading-relaxed">
+                      <pre className="bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-sm text-slate-300 overflow-x-auto max-h-48 leading-relaxed">
                         {step.codeBlock}
                       </pre>
                       <button
@@ -490,7 +490,7 @@ docker exec -it apap-ollama ollama list`}
                   )}
 
                   {step.verificationCheck && (
-                    <div className="text-[11px] text-slate-400 flex items-center gap-1.5 font-mono">
+                    <div className="text-sm text-slate-400 flex items-center gap-1.5 font-mono">
                       <span className="text-emerald-400">✓ Verification Check:</span>
                       <span>{step.verificationCheck}</span>
                     </div>
@@ -522,8 +522,8 @@ docker exec -it apap-ollama ollama list`}
                   }`}
                 >
                   <div className="font-semibold text-slate-100">{snippet.name}</div>
-                  <div className="font-mono text-[10px] text-blue-300 mt-0.5">{snippet.filename}</div>
-                  <div className="text-[10px] text-slate-400 mt-1">{snippet.category}</div>
+                  <div className="font-mono text-xs text-blue-300 mt-0.5">{snippet.filename}</div>
+                  <div className="text-xs text-slate-400 mt-1">{snippet.category}</div>
                 </button>
               ))}
             </div>

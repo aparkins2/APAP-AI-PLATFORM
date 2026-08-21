@@ -251,7 +251,7 @@ print(response.json())`;
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 1. Authorization Header
               </span>
-              <span className="text-[11px] text-slate-400 font-mono">SHA-256 Verified at Gateway</span>
+              <span className="text-sm text-slate-400 font-mono">SHA-256 Verified at Gateway</span>
             </div>
 
             <div className="space-y-1.5">
@@ -265,7 +265,7 @@ print(response.json())`;
                 />
                 <button
                   onClick={() => setApiKeyInput('apapai_invalid_bad_token')}
-                  className="absolute right-2 top-1.5 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-400 font-mono cursor-pointer"
+                  className="absolute right-2 top-1.5 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-400 font-mono cursor-pointer"
                   title="Test invalid key rejection"
                 >
                   Test 401
@@ -281,7 +281,7 @@ print(response.json())`;
                 <FileCode className="w-4 h-4 text-cyan-400" />
                 2. Select Prompt Template Task
               </span>
-              <span className="text-[11px] text-amber-300 font-mono">
+              <span className="text-sm text-amber-300 font-mono">
                 Class: {currentTemplate?.modelClass || 'fast'}
               </span>
             </div>
@@ -298,7 +298,7 @@ print(response.json())`;
                   }`}
                 >
                   <div className="font-mono font-semibold">{tmpl.name}</div>
-                  <div className="text-[10px] text-slate-400 truncate">{tmpl.description}</div>
+                  <div className="text-xs text-slate-400 truncate">{tmpl.description}</div>
                 </button>
               ))}
             </div>
@@ -306,11 +306,11 @@ print(response.json())`;
             {/* System Prompt & Template Variable Inputs */}
             {currentTemplate && (
               <div className="p-3 rounded-lg bg-slate-950/80 border border-slate-800/80 space-y-3">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <div className="flex items-center justify-between text-sm text-slate-400">
                   <span className="font-medium text-slate-300">Active System Prompt (Gateway DB):</span>
                   <span className="font-mono text-emerald-400">Temp: {temperature}</span>
                 </div>
-                <div className="text-[11px] font-mono text-slate-400 bg-slate-900 p-2.5 rounded border border-slate-800 max-h-24 overflow-y-auto leading-relaxed">
+                <div className="text-sm font-mono text-slate-400 bg-slate-900 p-2.5 rounded border border-slate-800 max-h-24 overflow-y-auto leading-relaxed">
                   {currentTemplate.systemPrompt}
                 </div>
 
@@ -321,7 +321,7 @@ print(response.json())`;
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {currentTemplate.variables.map((variable) => (
                     <div key={variable} className="space-y-1">
-                      <label className="text-[11px] font-mono text-slate-400 capitalize">
+                      <label className="text-sm font-mono text-slate-400 capitalize">
                         {variable}:
                       </label>
                       <input
@@ -418,7 +418,7 @@ print(response.json())`;
                 <div className="h-full flex flex-col items-center justify-center text-slate-500 py-16 text-center space-y-1">
                   <Play className="w-6 h-6 text-slate-600 mb-1" />
                   <span>Ready for execution</span>
-                  <span className="text-[11px] text-slate-600">
+                  <span className="text-sm text-slate-600">
                     Click "Execute Request" to test endpoint response.
                   </span>
                 </div>
@@ -427,20 +427,20 @@ print(response.json())`;
 
             {/* Metrics Breakdown Pill */}
             {responseMetrics && (
-              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-400 space-y-1.5">
+              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm font-mono text-slate-400 space-y-1.5">
                 <div className="flex items-center justify-between text-slate-300">
                   <span className="flex items-center gap-1 text-cyan-300">
                     <Clock className="w-3.5 h-3.5" /> Total Latency:
                   </span>
                   <span className="font-bold text-white">{responseMetrics.processingMs} ms</span>
                 </div>
-                <div className="flex items-center justify-between text-[10px]">
+                <div className="flex items-center justify-between text-xs">
                   <span>Prompt / Output Tokens:</span>
                   <span className="text-amber-300 font-semibold">
                     {responseMetrics.tokens.prompt} in / {responseMetrics.tokens.completion} out ({responseMetrics.tokens.total} total)
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-[10px]">
+                <div className="flex items-center justify-between text-xs">
                   <span>Inference Model:</span>
                   <span className="text-emerald-400">{responseMetrics.model}</span>
                 </div>
@@ -460,7 +460,7 @@ print(response.json())`;
                   <button
                     key={lang}
                     onClick={() => setCodeLang(lang)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase cursor-pointer ${
+                    className={`px-2 py-0.5 rounded text-xs font-mono uppercase cursor-pointer ${
                       codeLang === lang
                         ? 'bg-emerald-600 text-white font-bold'
                         : 'bg-slate-800 text-slate-400 hover:text-slate-200'
@@ -473,7 +473,7 @@ print(response.json())`;
             </div>
 
             <div className="relative">
-              <pre className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-cyan-300 overflow-x-auto max-h-40 leading-relaxed">
+              <pre className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-sm font-mono text-cyan-300 overflow-x-auto max-h-40 leading-relaxed">
                 {getGeneratedCode()}
               </pre>
               <button

@@ -360,7 +360,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
                   <span className="text-xs font-bold text-white">Live Stream Viewer Comments</span>
                 </div>
-                <span className="text-[11px] text-slate-400 font-mono">APAP Chat Operator View</span>
+                <span className="text-sm text-slate-400 font-mono">APAP Chat Operator View</span>
               </div>
 
               <div className="space-y-2 max-h-[380px] overflow-y-auto">
@@ -375,7 +375,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-cyan-300">@{c.author}</span>
-                      <span className="text-[10px] text-slate-500">{c.time}</span>
+                      <span className="text-xs text-slate-500">{c.time}</span>
                     </div>
                     <p className="text-slate-200">{c.text}</p>
 
@@ -384,14 +384,14 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                       <button
                         onClick={() => handleSuggestReply(c)}
                         disabled={isGeneratingReply}
-                        className="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+                        className="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-sm font-semibold flex items-center gap-1 cursor-pointer"
                       >
                         <Sparkles className="w-3 h-3 text-emerald-400" /> Suggest Reply (AI)
                       </button>
                       <button
                         onClick={() => handleModerateComment(c)}
                         disabled={isGeneratingReply}
-                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] flex items-center gap-1 cursor-pointer"
+                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm flex items-center gap-1 cursor-pointer"
                       >
                         <ShieldCheck className="w-3 h-3 text-amber-400" /> Check Safety
                       </button>
@@ -407,7 +407,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                   >
                     <div className="flex items-center justify-between text-emerald-300 font-bold">
                       <span>✓ {h.author}</span>
-                      <span className="text-[10px] text-emerald-400/80">{h.time}</span>
+                      <span className="text-xs text-emerald-400/80">{h.time}</span>
                     </div>
                     <p className="text-slate-200">{h.text}</p>
                   </div>
@@ -424,7 +424,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                   <Edit3 className="w-4 h-4 text-emerald-400" />
                   Human-in-the-Loop Operator Review
                 </span>
-                <span className="text-[11px] text-slate-400">PRD Section 34 Compliance</span>
+                <span className="text-sm text-slate-400">PRD Section 34 Compliance</span>
               </div>
 
               {/* Moderation Result Box */}
@@ -440,8 +440,8 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                     <span className="uppercase">Classification: {moderationResult.classification}</span>
                     <span className="font-mono">Confidence: {(moderationResult.confidence * 100).toFixed(0)}%</span>
                   </div>
-                  <p className="text-[11px] text-slate-300">{moderationResult.reason}</p>
-                  <div className="font-mono text-[10px] text-amber-300">
+                  <p className="text-sm text-slate-300">{moderationResult.reason}</p>
+                  <div className="font-mono text-xs text-amber-300">
                     Recommended Action: {moderationResult.actionRecommended}
                   </div>
                 </div>
@@ -483,7 +483,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
                 <div className="p-8 rounded-lg bg-slate-950/60 border border-slate-800 text-center text-slate-400 text-xs space-y-1">
                   <Sparkles className="w-6 h-6 text-slate-600 mx-auto mb-1" />
                   <p>Click "Suggest Reply (AI)" on any comment on the left to trigger the APAP AI Gateway.</p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-sm text-slate-500">
                     AI never posts autonomously — operators retain complete approval authority.
                   </p>
                 </div>

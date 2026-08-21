@@ -107,10 +107,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-full md:w-64 bg-slate-900/95 border-r border-slate-800 flex flex-col shrink-0">
+    <aside className="w-full md:w-72 bg-slate-900/95 border-r border-slate-800 flex flex-col shrink-0">
       <div className="p-3 space-y-6 flex-1">
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
+          <div className="text-sm font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
             Gateway Engine
           </div>
           <div className="space-y-1">
@@ -121,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                     isActive
                       ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
@@ -137,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   {item.badge !== undefined && (
                     <span
-                      className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
                         item.badgeColor || 'bg-slate-800 text-slate-400'
                       }`}
                     >
@@ -151,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
+          <div className="text-sm font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
             Client Apps & UI
           </div>
           <div className="space-y-1">
@@ -162,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                     isActive
                       ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
@@ -178,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   {item.badge !== undefined && (
                     <span
-                      className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
                         item.badgeColor || 'bg-slate-800 text-slate-400'
                       }`}
                     >
@@ -192,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <div>
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
+          <div className="text-sm font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
             Infrastructure & Guide
           </div>
           <div className="space-y-1">
@@ -203,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                     isActive
                       ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
                       : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
@@ -219,7 +219,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   {item.badge !== undefined && (
                     <span
-                      className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
                         item.badgeColor || 'bg-slate-800 text-slate-400'
                       }`}
                     >
@@ -235,16 +235,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Footer Host Information */}
       <div className="p-3 border-t border-slate-800 bg-slate-950/60">
-        <div className="rounded-lg p-2.5 bg-slate-900 border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
+        <div className="rounded-lg p-2.5 bg-slate-900 border border-slate-800 text-sm text-slate-400 space-y-1.5">
           <div className="flex items-center justify-between text-slate-300 font-medium">
             <span>Primary Host</span>
             <span className="text-emerald-400 font-mono">127.0.0.1:3100</span>
           </div>
-          <div className="flex items-center justify-between text-[10px]">
+          <div className="flex items-center justify-between text-xs">
             <span>Model Engine</span>
             <span className="font-mono text-cyan-300">Ollama (Bridge)</span>
           </div>
-          <div className="flex items-center justify-between text-[10px]">
+          <div className="flex items-center justify-between text-xs">
             <span>Database</span>
             <span className="font-mono text-indigo-300">apap_ai (PG)</span>
           </div>

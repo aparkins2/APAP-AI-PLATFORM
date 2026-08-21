@@ -82,19 +82,19 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
         <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
           <span className="text-xs text-slate-400">Total Logged Requests</span>
           <div className="text-2xl font-bold text-white font-mono mt-1">{logs.length}</div>
-          <div className="text-[11px] text-emerald-400 mt-1">100% gateway captured</div>
+          <div className="text-sm text-emerald-400 mt-1">100% gateway captured</div>
         </div>
 
         <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
           <span className="text-xs text-slate-400">Success Rate</span>
           <div className="text-2xl font-bold text-emerald-400 font-mono mt-1">{successRate}%</div>
-          <div className="text-[11px] text-slate-400 mt-1">{successCount} successful calls</div>
+          <div className="text-sm text-slate-400 mt-1">{successCount} successful calls</div>
         </div>
 
         <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
           <span className="text-xs text-slate-400">Avg Inference Latency</span>
           <div className="text-2xl font-bold text-cyan-300 font-mono mt-1">{avgLatency} ms</div>
-          <div className="text-[11px] text-cyan-400/80 mt-1">qwen3.5:4b on CPU VPS</div>
+          <div className="text-sm text-cyan-400/80 mt-1">qwen3.5:4b on CPU VPS</div>
         </div>
 
         <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800">
@@ -102,7 +102,7 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
           <div className="text-2xl font-bold text-amber-300 font-mono mt-1">
             {totalTokens.toLocaleString()}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">Zero third-party API fee</div>
+          <div className="text-sm text-slate-400 mt-1">Zero third-party API fee</div>
         </div>
       </div>
 
@@ -159,8 +159,8 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
       {/* Logs Table */}
       <div className="rounded-xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-medium font-mono text-[11px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-medium font-mono text-sm">
               <tr>
                 <th className="py-3 px-4">Timestamp</th>
                 <th className="py-3 px-4">Application</th>
@@ -172,7 +172,7 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
                 <th className="py-3 px-4 text-right">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+            <tbody className="divide-y divide-slate-800/60 font-mono text-sm">
               {filteredLogs.map((log) => (
                 <tr
                   key={log.id}
@@ -186,7 +186,7 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
                   <td className="py-3 px-4 text-cyan-300 font-bold">{log.task}</td>
                   <td className="py-3 px-4">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] ${
+                      className={`px-2 py-0.5 rounded text-xs ${
                         log.modelClass === 'smart'
                           ? 'bg-purple-950 text-purple-300'
                           : 'bg-emerald-950 text-emerald-300'
@@ -239,7 +239,7 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
                   <Activity className="w-4 h-4 text-emerald-400" />
                   Request Inspector: {inspectingLog.task}
                 </h3>
-                <div className="text-[11px] font-mono text-slate-400">
+                <div className="text-sm font-mono text-slate-400">
                   ID: {inspectingLog.requestId}
                 </div>
               </div>
@@ -256,19 +256,19 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
               <span className="text-xs font-bold text-slate-200">Ollama Internal Nanosecond Breakdown</span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
                 <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400">Total Duration:</span>
+                  <span className="text-xs text-slate-400">Total Duration:</span>
                   <div className="text-white font-bold">{inspectingLog.totalDurationMs} ms</div>
                 </div>
                 <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400">Load Time:</span>
+                  <span className="text-xs text-slate-400">Load Time:</span>
                   <div className="text-cyan-300 font-bold">{inspectingLog.loadDurationMs} ms</div>
                 </div>
                 <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400">Prompt Eval:</span>
+                  <span className="text-xs text-slate-400">Prompt Eval:</span>
                   <div className="text-indigo-300 font-bold">{inspectingLog.promptEvalDurationMs} ms</div>
                 </div>
                 <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-400">Eval (Gen):</span>
+                  <span className="text-xs text-slate-400">Eval (Gen):</span>
                   <div className="text-amber-300 font-bold">{inspectingLog.evalDurationMs} ms</div>
                 </div>
               </div>
@@ -294,7 +294,7 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
             {inspectingLog.inputPayloadSummary && (
               <div className="space-y-1">
                 <span className="text-xs font-bold text-slate-300">Input Variables Summary</span>
-                <pre className="p-2.5 rounded bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-300 whitespace-pre-wrap">
+                <pre className="p-2.5 rounded bg-slate-950 border border-slate-800 text-sm font-mono text-slate-300 whitespace-pre-wrap">
                   {inspectingLog.inputPayloadSummary}
                 </pre>
               </div>
@@ -303,7 +303,7 @@ export const LogsView: React.FC<LogsViewProps> = ({ logs, apps }) => {
             {inspectingLog.outputSummary && (
               <div className="space-y-1">
                 <span className="text-xs font-bold text-slate-300">Generated Output Snippet</span>
-                <pre className="p-2.5 rounded bg-slate-950 border border-slate-800 text-[11px] font-mono text-emerald-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                <pre className="p-2.5 rounded bg-slate-950 border border-slate-800 text-sm font-mono text-emerald-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
                   {inspectingLog.outputSummary}
                 </pre>
               </div>
