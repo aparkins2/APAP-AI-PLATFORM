@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { executeGatewayRequest } from './src/services/aiEngine.ts';
+import { INITIAL_APPS, INITIAL_TEMPLATES } from './src/data/initialData.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +49,54 @@ app.get('/health', async (_req: Request, res: Response) => {
     version: '1.0.0',
     environment: process.env.NODE_ENV || 'production',
   });
+});
+
+// Generate endpoint - forwards to Ollama via the APAP AI Engine
+app.post('/v1/generate', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    res.status(401).json({
+      success: false,
+      error: 'Missing or invalid Authorization header. Expected: Bearer apapai_live_...',
+    });
+    return;
+  }
+
+  const apiKey = authHeader.replace('Bearer ', '').trim();
+  const {
+    task,
+    input,
+    rawPrompt,
+    temperature,
+    maxTokens,
+    modelClassOverride,
+    requireStructuredJson,
+  } = req.body;
+
+  if (!task || typeof input !== 'object' || input === null) {
+    res.status(400).json({
+      success: false,
+      error: 'task and input are required',
+    });
+    return;
+  }
+
+  const result = await executeGatewayRequest(
+    {
+      task,
+      input,
+      rawPrompt,
+      temperature,
+      maxTokens,
+      apiKey,
+      modelClassOverride,
+      requireStructuredJson,
+    },
+    INITIAL_APPS,
+    INITIAL_TEMPLATES
+  );
+
+  res.status(result.statusCode).json(result);
 });
 
 // Serve compiled static UI assets from dist/
