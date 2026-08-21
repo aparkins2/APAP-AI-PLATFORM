@@ -5,6 +5,7 @@ export interface AppEntity {
   name: string;
   slug: string;
   apiKeyHash: string;
+  apiKey?: string;
   apiKeyPrefix: string;
   active: boolean;
   rateLimitPerMinute: number;

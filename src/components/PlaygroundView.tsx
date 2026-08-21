@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { AppEntity, PromptTemplate, RequestLog, ModelClass } from '../types';
-import { executeGatewayRequest } from '../services/aiEngine';
 import {
   Terminal,
   Play,
@@ -32,7 +31,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
 }) => {
   const [selectedTask, setSelectedTask] = useState<string>('stream-title');
   const [selectedAppId, setSelectedAppId] = useState<string>(apps[0]?.id || '');
-  const [apiKeyInput, setApiKeyInput] = useState<string>('apapai_live_7c4f9812a4bb31e0');
+  const [apiKeyInput, setApiKeyInput] = useState<string>(apps[0]?.apiKey || '');
   const [modelClassOverride, setModelClassOverride] = useState<ModelClass | 'auto'>('auto');
   const [temperature, setTemperature] = useState<number>(0.3);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -78,7 +77,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
     setSelectedAppId(appId);
     const app = apps.find((a) => a.id === appId);
     if (app) {
-      setApiKeyInput(`apapai_live_${app.slug.replace(/-/g, '_')}_${Math.random().toString(36).substring(2, 8)}`);
+      setApiKeyInput(app.apiKey);
     }
   };
 
@@ -89,17 +88,20 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
     setResponseMetrics(null);
 
     try {
-      const result = await executeGatewayRequest(
-        {
+      const res = await fetch('/v1/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKeyInput}`,
+        },
+        body: JSON.stringify({
           task: selectedTask,
           input: formInputs,
-          apiKey: apiKeyInput,
           temperature,
           modelClassOverride: modelClassOverride === 'auto' ? undefined : modelClassOverride,
-        },
-        apps,
-        templates
-      );
+        }),
+      });
+      const result = await res.json();
 
       setResponseOutput(result.result || result.error);
       setResponseStatus(result.statusCode);

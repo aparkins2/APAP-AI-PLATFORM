@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { AppEntity, PromptTemplate } from '../types';
-import { executeGatewayRequest } from '../services/aiEngine';
 import {
   MessageSquare,
   Share2,
@@ -92,6 +91,22 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
   const [generatedRos, setGeneratedRos] = useState<string>('');
   const [isGeneratingRos, setIsGeneratingRos] = useState<boolean>(false);
 
+  const callGateway = async (
+    payload: any,
+    _apps: AppEntity[],
+    _templates: PromptTemplate[]
+  ) => {
+    const res = await fetch('/v1/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${payload.apiKey}`,
+      },
+      body: JSON.stringify({ task: payload.task, input: payload.input }),
+    });
+    return res.json();
+  };
+
   // 1. Trigger APAP Chat Suggested Reply
   const handleSuggestReply = async (comment: any) => {
     setSelectedComment(comment);
@@ -100,9 +115,9 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     setModerationResult(null);
 
     const chatApp = apps.find((a) => a.slug === 'apap-chat') || apps[0];
-    const apiKey = `apapai_live_${chatApp.slug.replace(/-/g, '_')}_demo`;
+    const apiKey = chatApp.apiKey;
 
-    const res = await executeGatewayRequest(
+    const res = await callGateway(
       {
         task: 'chat-reply',
         input: {
@@ -130,9 +145,9 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     setIsGeneratingReply(true);
 
     const chatApp = apps.find((a) => a.slug === 'apap-chat') || apps[0];
-    const apiKey = `apapai_live_${chatApp.slug.replace(/-/g, '_')}_demo`;
+    const apiKey = chatApp.apiKey;
 
-    const res = await executeGatewayRequest(
+    const res = await callGateway(
       {
         task: 'chat-moderation',
         input: {
@@ -180,10 +195,10 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     setGeneratedMetadata(null);
 
     const msApp = apps.find((a) => a.slug === 'apap-multistream') || apps[0];
-    const apiKey = `apapai_live_${msApp.slug.replace(/-/g, '_')}_demo`;
+    const apiKey = msApp.apiKey;
 
     // Generate Titles
-    const titlesRes = await executeGatewayRequest(
+    const titlesRes = await callGateway(
       {
         task: 'stream-title',
         input: { show: msShow, topic: msTopic, guest: msGuest },
@@ -194,7 +209,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     );
 
     // Generate Description
-    const descRes = await executeGatewayRequest(
+    const descRes = await callGateway(
       {
         task: 'stream-description',
         input: {
@@ -212,7 +227,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     );
 
     // Generate Tags
-    const tagsRes = await executeGatewayRequest(
+    const tagsRes = await callGateway(
       {
         task: 'youtube-tags',
         input: { topic: msTopic, guest: msGuest, category: 'Civic Media' },
@@ -223,7 +238,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     );
 
     // Generate Social
-    const socialRes = await executeGatewayRequest(
+    const socialRes = await callGateway(
       {
         task: 'social-caption',
         input: {
@@ -258,9 +273,9 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
   const handleGenerateRadioLiners = async () => {
     setIsGeneratingLiners(true);
     const radioApp = apps.find((a) => a.slug === 'radiohub-pro') || apps[0];
-    const apiKey = `apapai_live_${radioApp.slug.replace(/-/g, '_')}_demo`;
+    const apiKey = radioApp.apiKey;
 
-    const res = await executeGatewayRequest(
+    const res = await callGateway(
       {
         task: 'dj-liner-intro',
         input: {
@@ -285,9 +300,9 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
   const handleGenerateRos = async () => {
     setIsGeneratingRos(true);
     const rosApp = apps.find((a) => a.slug === 'run-of-show') || apps[0];
-    const apiKey = `apapai_live_${rosApp.slug.replace(/-/g, '_')}_demo`;
+    const apiKey = rosApp.apiKey;
 
-    const res = await executeGatewayRequest(
+    const res = await callGateway(
       {
         task: 'run-of-show',
         input: {
