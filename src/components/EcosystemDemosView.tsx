@@ -18,8 +18,10 @@ import {
   RefreshCw,
   Clock,
   ListPlus,
+  FileDown,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { downloadPdf } from '../utils/pdfExport';
 
 interface EcosystemDemosViewProps {
   apps: AppEntity[];
@@ -735,7 +737,22 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
 
           {generatedRos && (
             <div className="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-              <span className="text-xs font-bold text-white">Live Broadcast Technical Cue Sheet</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white">Live Broadcast Technical Cue Sheet</span>
+                <button
+                  onClick={() =>
+                    downloadPdf({
+                      task: 'run-of-show',
+                      appName: 'Run-of-Show Assistant',
+                      result: generatedRos,
+                    })
+                  }
+                  className="flex items-center gap-1 px-2 py-1 rounded bg-cyan-950 hover:bg-cyan-900 border border-cyan-700/50 text-cyan-300 text-xs font-medium cursor-pointer"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  Download PDF
+                </button>
+              </div>
               <pre className="p-4 bg-slate-950 rounded-lg text-xs font-mono text-slate-200 whitespace-pre-wrap leading-relaxed border border-slate-800 overflow-x-auto">
                 {generatedRos}
               </pre>

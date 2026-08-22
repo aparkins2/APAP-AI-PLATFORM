@@ -15,8 +15,10 @@ import {
   Code2,
   AlertCircle,
   Database,
+  FileDown,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { downloadPdf } from '../utils/pdfExport';
 
 interface PlaygroundViewProps {
   apps: AppEntity[];
@@ -391,17 +393,36 @@ print(response.json())`;
                 <Terminal className="w-4 h-4 text-emerald-400" />
                 Response Payload
               </span>
-              {responseStatus && (
-                <span
-                  className={`font-mono text-xs px-2 py-0.5 rounded font-bold ${
-                    responseStatus === 200
-                      ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
-                      : 'bg-red-950 text-red-400 border border-red-800/80'
-                  }`}
-                >
-                  HTTP {responseStatus}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {responseStatus === 200 && ['run-of-show', 'guest-introduction', 'podcast-summary'].includes(selectedTask) && responseOutput && (
+                  <button
+                    onClick={() =>
+                      downloadPdf({
+                        task: selectedTask,
+                        appName: apps.find((a) => a.id === selectedAppId)?.name,
+                        model: responseMetrics?.model,
+                        result: responseOutput,
+                        processingMs: responseMetrics?.processingMs,
+                      })
+                    }
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-cyan-950 hover:bg-cyan-900 border border-cyan-700/50 text-cyan-300 text-xs font-medium cursor-pointer"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    Download PDF
+                  </button>
+                )}
+                {responseStatus && (
+                  <span
+                    className={`font-mono text-xs px-2 py-0.5 rounded font-bold ${
+                      responseStatus === 200
+                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/80'
+                        : 'bg-red-950 text-red-400 border border-red-800/80'
+                    }`}
+                  >
+                    HTTP {responseStatus}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Response Content */}
