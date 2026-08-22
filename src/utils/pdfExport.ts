@@ -8,14 +8,48 @@ export interface PdfExportParams {
   processingMs?: number;
 }
 
+function normalizeContent(result: string | Record<string, unknown>): string {
+  return typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+}
+
+function isTableRow(line: string): boolean {
+  const trimmed = line.trim();
+  return trimmed.startsWith('|') && trimmed.lastIndexOf('|') > trimmed.indexOf('|');
+}
+
+function parseTable(block: string): { head?: string[][]; body: string[][] } | null {
+  const lines = block.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+  const rows = lines.filter(isTableRow);
+  if (rows.length < 2) return null;
+
+  const parsed = rows.map((line) =>
+    line
+      .split('|')
+      .map((c) => c.trim())
+      .filter((_, i, arr) => {
+        if (i === 0 && arr[i] === '') return false;
+        if (i === arr.length - 1 && arr[i] === '') return false;
+        return true;
+      })
+  );
+
+  // Markdown-style header separator row (all dashes/whitespace)
+  if (parsed.length > 1 && parsed[1].every((c) => /^[-\s:|]+$/.test(c))) {
+    return { head: [parsed[0]], body: parsed.slice(2) };
+  }
+
+  return { body: parsed };
+}
+
 export function downloadPdf(params: PdfExportParams): void {
   const doc = new jsPDF();
   const margin = 16;
   const pageWidth = doc.internal.pageSize.getWidth();
-  const maxLineWidth = pageWidth - margin * 2;
+  const pageHeight = doc.internal.pageSize.getHeight();
 
   const title = `APAP AI — ${params.task.replace(/-/g, ' ').toUpperCase()}`;
-  doc.setFontSize(16);
+  doc.setFontSize(18);
+  doc.setTextColor(0, 0, 0);
   doc.text(title, pageWidth / 2, 20, { align: 'center' });
 
   doc.setFontSize(10);
@@ -27,17 +61,112 @@ export function downloadPdf(params: PdfExportParams): void {
   }
   doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 48);
 
-  const content =
-    typeof params.result === 'string'
-      ? params.result
-      : JSON.stringify(params.result, null, 2);
+  let y = 58;
+  const content = normalizeContent(params.result);
+  const blocks = content.split(/\n\n+/);
 
-  const lines = doc.splitTextToSize(content, maxLineWidth);
-  doc.setFontSize(11);
-  doc.setTextColor(20, 20, 20);
-  doc.text(lines, margin, 60);
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
+
+    const table = parseTable(trimmed);
+    if (table) {
+      y = renderTable(doc, table, y, margin, pageWidth, pageHeight);
+    } else {
+      y = renderParagraph(doc, trimmed, y, margin, pageWidth, pageHeight);
+    }
+  }
 
   const safeTask = params.task.replace(/[^a-z0-9-]/gi, '-');
   const date = new Date().toISOString().slice(0, 10);
   doc.save(`apap-ai-${safeTask}-${date}.pdf`);
+}
+
+function renderTable(
+  doc: jsPDF,
+  table: { head?: string[][]; body: string[][] },
+  startY: number,
+  margin: number,
+  pageWidth: number,
+  pageHeight: number
+): number {
+  const tableWidth = pageWidth - margin * 2;
+  const allRows = [...(table.head || []), ...table.body];
+  const colCount = Math.max(...allRows.map((r) => r.length), 1);
+  const colWidth = tableWidth / colCount;
+  const lineHeight = 5;
+  const cellPadding = 2;
+  let y = startY;
+
+  for (let rowIdx = 0; rowIdx < allRows.length; rowIdx++) {
+    const row = allRows[rowIdx];
+    const isHead = table.head ? rowIdx < table.head.length : false;
+    const cells = [] as { text: string[]; h: number }[];
+    let maxH = lineHeight * 2;
+
+    for (let c = 0; c < colCount; c++) {
+      const raw = row[c] || '';
+      const text = doc.splitTextToSize(raw, colWidth - cellPadding * 2);
+      const h = Math.max(text.length * lineHeight, lineHeight) + cellPadding * 2;
+      cells.push({ text, h });
+      maxH = Math.max(maxH, h);
+    }
+
+    if (y + maxH > pageHeight - margin) {
+      doc.addPage();
+      y = margin;
+    }
+
+    for (let c = 0; c < colCount; c++) {
+      const x = margin + c * colWidth;
+      const cell = cells[c];
+      doc.setFillColor(isHead ? 16 : 255, isHead ? 185 : 255, isHead ? 129 : 255);
+      doc.rect(x, y, colWidth, maxH, 'FD');
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.2);
+      doc.rect(x, y, colWidth, maxH, 'S');
+      doc.setFont(isHead ? 'helvetica' : 'helvetica', isHead ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.text(cell.text, x + cellPadding, y + cellPadding + lineHeight * 0.85);
+    }
+
+    y += maxH;
+  }
+
+  return y + 6;
+}
+
+function renderParagraph(
+  doc: jsPDF,
+  text: string,
+  startY: number,
+  margin: number,
+  pageWidth: number,
+  pageHeight: number
+): number {
+  const maxWidth = pageWidth - margin * 2;
+  const isHeading = text.length < 80 && (!text.includes('.') || text.endsWith(':'));
+  const isSubheading = /^\d+\.\s+|^Option \d+:|^\*\s+/.test(text);
+
+  if (isHeading || isSubheading) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+  } else {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+  }
+
+  doc.setTextColor(20, 20, 20);
+  doc.setLineHeightFactor(1.4);
+  const lines = doc.splitTextToSize(text, maxWidth);
+  const blockHeight = lines.length * 5.2 * 1.4;
+
+  if (startY + blockHeight > pageHeight - margin) {
+    doc.addPage();
+    startY = margin;
+  }
+
+  doc.text(lines, margin, startY + 5, { lineHeightFactor: 1.4 });
+  return startY + blockHeight + 6;
 }
