@@ -232,6 +232,9 @@ export function App() {
         activeTab={activeTab}
         onRefreshHealth={handleRefreshHealth}
         isRefreshing={isRefreshingHealth}
+        userName={userName}
+        role={role}
+        onLogout={handleLogout}
       />
 
       {/* App Body with Sidebar */}

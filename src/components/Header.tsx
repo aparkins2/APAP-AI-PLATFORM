@@ -1,12 +1,15 @@
 import React from 'react';
-import { ServerHealth } from '../types';
-import { Server, Activity, ShieldCheck, Cpu, HardDrive, Zap, Radio } from 'lucide-react';
+import { ServerHealth, UserRole } from '../types';
+import { Server, Activity, ShieldCheck, Cpu, HardDrive, Zap, Radio, LogOut, UserCircle2 } from 'lucide-react';
 
 interface HeaderProps {
   health: ServerHealth;
   activeTab: string;
   onRefreshHealth: () => void;
   isRefreshing: boolean;
+  userName?: string;
+  role?: UserRole | null;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,6 +17,9 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   onRefreshHealth,
   isRefreshing,
+  userName,
+  role,
+  onLogout,
 }) => {
   return (
     <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 lg:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
@@ -88,6 +94,27 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="text-slate-400">Ollama Port 11434:</span>
           <span className="text-emerald-400 font-semibold">Private & Secured</span>
         </div>
+
+        {/* Signed-in User & Logout */}
+        {userName && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/70 text-slate-300">
+            <UserCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="font-semibold text-white">{userName}</span>
+            {role && (
+              <span className="text-xs capitalize text-slate-400">({role.replace(/-/g, ' ')})</span>
+            )}
+          </div>
+        )}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            title="Sign out of the dashboard"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900/60 border border-red-800/60 text-red-300 transition-all cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="font-medium text-xs">Logout</span>
+          </button>
+        )}
       </div>
     </header>
   );
