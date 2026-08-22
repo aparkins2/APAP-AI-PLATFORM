@@ -1,4 +1,4 @@
-import { AppEntity, PromptTemplate, ModelClass } from '../types';
+import { AppEntity, PromptTemplate, ModelClass, User } from '../types';
 
 export interface GenerateParams {
   task: string;
@@ -177,7 +177,8 @@ const rateLimitBuckets = new Map<string, number[]>();
 export async function executeGatewayRequest(
   params: GenerateParams,
   apps: AppEntity[],
-  templates: PromptTemplate[]
+  templates: PromptTemplate[],
+  users: User[] = []
 ): Promise<GenerateResult> {
   const start = performance.now();
   const reqId = crypto.randomUUID();
@@ -210,8 +211,10 @@ export async function executeGatewayRequest(
   } else if (params.apiKey.startsWith('apapai_live_')) {
     const keyHash = await sha256Hex(params.apiKey);
     const matchingApp = apps.find((a) => a.apiKeyHash === keyHash);
+    const matchingUser = users.find((u) => u.apiKeyHash === keyHash);
+    const identity = matchingApp || matchingUser;
 
-    if (!matchingApp) {
+    if (!identity) {
       return {
         success: false,
         requestId: reqId,
@@ -227,7 +230,7 @@ export async function executeGatewayRequest(
       };
     }
 
-    if (!matchingApp.active) {
+    if (!identity.active) {
       return {
         success: false,
         requestId: reqId,
@@ -238,7 +241,7 @@ export async function executeGatewayRequest(
         processingMs: Math.round(performance.now() - start),
         tokens: { prompt: 0, completion: 0, total: 0 },
         metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
-        error: 'Application account is disabled.',
+        error: 'Account is disabled.',
         statusCode: 403,
       };
     }
@@ -246,9 +249,9 @@ export async function executeGatewayRequest(
     // Rate limit per minute
     const now = Date.now();
     const windowStart = now - 60_000;
-    const timestamps = rateLimitBuckets.get(matchingApp.id) || [];
+    const timestamps = rateLimitBuckets.get(identity.id) || [];
     const recent = timestamps.filter((t) => t > windowStart);
-    if (recent.length >= matchingApp.rateLimitPerMinute) {
+    if (recent.length >= identity.rateLimitPerMinute) {
       return {
         success: false,
         requestId: reqId,
@@ -259,17 +262,17 @@ export async function executeGatewayRequest(
         processingMs: Math.round(performance.now() - start),
         tokens: { prompt: 0, completion: 0, total: 0 },
         metrics: { totalDurationNs: 0, loadDurationNs: 0, promptEvalDurationNs: 0, evalDurationNs: 0 },
-        appId: matchingApp.id,
-        appName: matchingApp.name,
-        error: `Rate limit exceeded. Limit is ${matchingApp.rateLimitPerMinute} requests per minute.`,
+        appId: identity.id,
+        appName: identity.name,
+        error: `Rate limit exceeded. Limit is ${identity.rateLimitPerMinute} requests per minute.`,
         statusCode: 429,
       };
     }
     recent.push(now);
-    rateLimitBuckets.set(matchingApp.id, recent);
+    rateLimitBuckets.set(identity.id, recent);
 
-    appId = matchingApp.id;
-    appName = matchingApp.name;
+    appId = identity.id;
+    appName = identity.name;
   } else {
     return {
       success: false,

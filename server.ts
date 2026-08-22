@@ -3,9 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import os from 'os';
+import nodeCrypto from 'node:crypto';
 import { executeGatewayRequest } from './src/services/aiEngine.ts';
-import { INITIAL_APPS, INITIAL_TEMPLATES } from './src/data/initialData.ts';
-import type { RequestLog, ServerHealth, AppEntity } from './src/types/index.ts';
+import { INITIAL_APPS, INITIAL_TEMPLATES, INITIAL_USERS } from './src/data/initialData.ts';
+import type { RequestLog, ServerHealth, AppEntity, User, UserRole } from './src/types/index.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,8 +14,57 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://ollama:11434';
+const MASTER_ADMIN_KEY = process.env.MASTER_ADMIN_KEY;
 
 app.use(express.json({ limit: '10mb' }));
+
+// RBAC helpers
+function sha256Sync(text: string): string {
+  return nodeCrypto.createHash('sha256').update(text).digest('hex');
+}
+
+function resolveIdentity(apiKey: string): { id: string; name: string; role: UserRole } | null {
+  if (MASTER_ADMIN_KEY && apiKey === MASTER_ADMIN_KEY) {
+    return { id: 'master-admin', name: 'Master Admin', role: 'administrator' };
+  }
+  const keyHash = sha256Sync(apiKey);
+  const user = INITIAL_USERS.find((u) => u.apiKeyHash === keyHash);
+  if (user) {
+    return { id: user.id, name: user.name, role: user.role };
+  }
+  return null;
+}
+
+function requireRole(...allowedRoles: UserRole[]) {
+  return (req: Request, res: Response, next: () => void) => {
+    const authHeader = req.headers.authorization || '';
+    if (!authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Missing or invalid Authorization header' });
+      return;
+    }
+    const apiKey = authHeader.replace('Bearer ', '').trim();
+    const identity = resolveIdentity(apiKey);
+    if (!identity || !allowedRoles.includes(identity.role)) {
+      res.status(403).json({ error: 'Forbidden: insufficient role' });
+      return;
+    }
+    next();
+  };
+}
+
+function requireAuth(req: Request, res: Response, next: () => void) {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    return;
+  }
+  const apiKey = authHeader.replace('Bearer ', '').trim();
+  if (!resolveIdentity(apiKey)) {
+    res.status(401).json({ error: 'Invalid API key' });
+    return;
+  }
+  next();
+}
 
 // In-memory request log (lost on container restart)
 let requestLogs: RequestLog[] = [];
@@ -67,7 +117,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 });
 
 // List available Ollama models
-app.get('/v1/models', async (_req: Request, res: Response) => {
+app.get('/v1/models', requireAuth, async (_req: Request, res: Response) => {
   try {
     const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
     if (!response.ok) throw new Error(`Ollama status ${response.status}`);
@@ -79,19 +129,43 @@ app.get('/v1/models', async (_req: Request, res: Response) => {
 });
 
 // List prompt templates
-app.get('/v1/templates', (_req: Request, res: Response) => {
+app.get('/v1/templates', requireAuth, (_req: Request, res: Response) => {
   res.json(INITIAL_TEMPLATES);
 });
 
 // List apps without exposing real API key hashes
-app.get('/v1/apps', (_req: Request, res: Response) => {
-  const safeApps: AppEntity[] = INITIAL_APPS.map((app) => ({ ...app, apiKeyHash: 'hidden' }));
-  res.json(safeApps);
-});
+app.get(
+  '/v1/apps',
+  requireRole('administrator', 'engineer'),
+  (_req: Request, res: Response) => {
+    const safeApps: AppEntity[] = INITIAL_APPS.map((app) => ({ ...app, apiKeyHash: 'hidden' }));
+    res.json(safeApps);
+  }
+);
 
 // Recent request logs
-app.get('/v1/logs', (_req: Request, res: Response) => {
-  res.json(requestLogs.slice(0, 100));
+app.get(
+  '/v1/logs',
+  requireRole('administrator', 'engineer', 'community-moderator'),
+  (_req: Request, res: Response) => {
+    res.json(requestLogs.slice(0, 100));
+  }
+);
+
+// Identify the role for a dashboard API key
+app.post('/v1/auth/whoami', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    return;
+  }
+  const apiKey = authHeader.replace('Bearer ', '').trim();
+  const identity = resolveIdentity(apiKey);
+  if (!identity) {
+    res.status(401).json({ error: 'Invalid API key' });
+    return;
+  }
+  res.json({ id: identity.id, name: identity.name, role: identity.role });
 });
 
 // Generate endpoint - forwards to Ollama via the APAP AI Engine
@@ -136,7 +210,8 @@ app.post('/v1/generate', async (req: Request, res: Response) => {
       requireStructuredJson,
     },
     INITIAL_APPS,
-    INITIAL_TEMPLATES
+    INITIAL_TEMPLATES,
+    INITIAL_USERS
   );
 
   // Log the request for the dashboard

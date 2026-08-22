@@ -9,6 +9,7 @@ import { LogsView } from './components/LogsView';
 import { EcosystemDemosView } from './components/EcosystemDemosView';
 import { AdminChatView } from './components/AdminChatView';
 import { DeploymentView } from './components/DeploymentView';
+import { LoginView } from './components/LoginView';
 
 import {
   INITIAL_HEALTH,
@@ -17,9 +18,13 @@ import {
   INITIAL_LOGS,
   DEPLOYMENT_STEPS,
 } from './data/initialData';
-import { AppEntity, PromptTemplate, RequestLog, DeploymentStep, ServerHealth } from './types';
+import { AppEntity, PromptTemplate, RequestLog, DeploymentStep, ServerHealth, UserRole } from './types';
 
 export function App() {
+  const [apiKey, setApiKey] = useState<string>('');
+  const [role, setRole] = useState<UserRole | null>(null);
+  const [userName, setUserName] = useState<string>('');
+  const [isAuthChecking, setIsAuthChecking] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [health, setHealth] = useState<ServerHealth>(INITIAL_HEALTH);
   const [isRefreshingHealth, setIsRefreshingHealth] = useState<boolean>(false);
@@ -28,34 +33,104 @@ export function App() {
   const [logs, setLogs] = useState<RequestLog[]>(INITIAL_LOGS);
   const [deploymentSteps, setDeploymentSteps] = useState<DeploymentStep[]>(DEPLOYMENT_STEPS);
 
-  // Load real dashboard data from the gateway on mount
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [healthRes, appsRes, templatesRes, logsRes] = await Promise.all([
-          fetch('/health'),
-          fetch('/v1/apps'),
-          fetch('/v1/templates'),
-          fetch('/v1/logs'),
-        ]);
+  const roleTabs: Record<UserRole, NavTab[]> = {
+    administrator: ['dashboard', 'playground', 'apps', 'templates', 'logs', 'ecosystem', 'admin-chat', 'deployment'],
+    engineer: ['dashboard', 'playground', 'apps', 'templates', 'logs', 'deployment'],
+    'broadcast-operator': ['dashboard', 'playground', 'templates', 'ecosystem'],
+    'community-moderator': ['dashboard', 'playground', 'logs', 'admin-chat'],
+    'standard-user': ['playground'],
+  };
 
-        if (healthRes.ok) {
-          const healthData = (await healthRes.json()) as ServerHealth;
-          setHealth(healthData);
+  const isTabAllowed = (tab: NavTab, r: UserRole | null) => {
+    if (!r) return false;
+    return roleTabs[r].includes(tab);
+  };
+
+  const loadDashboardData = async (key: string) => {
+    try {
+      const endpoints: { url: string; setter: (data: any) => void }[] = [
+        { url: '/health', setter: (data) => setHealth(data as ServerHealth) },
+        { url: '/v1/apps', setter: (data) => setApps(data as AppEntity[]) },
+        { url: '/v1/templates', setter: (data) => setTemplates(data as PromptTemplate[]) },
+        { url: '/v1/logs', setter: (data) => setLogs(data as RequestLog[]) },
+      ];
+      const results = await Promise.all(
+        endpoints.map((e) =>
+          fetch(e.url, { headers: { Authorization: `Bearer ${key}` } }).then((res) => ({ res, setter: e.setter }))
+        )
+      );
+      for (const { res, setter } of results) {
+        if (res.ok) {
+          const data = await res.json();
+          setter(data);
         }
-        if (appsRes.ok) setApps(await appsRes.json());
-        if (templatesRes.ok) setTemplates(await templatesRes.json());
-        if (logsRes.ok) setLogs(await logsRes.json());
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data', err);
+    }
+  };
+
+  const handleLogin = (newKey: string, newRole: UserRole, name: string) => {
+    setApiKey(newKey);
+    setRole(newRole);
+    setUserName(name);
+    localStorage.setItem('apapai_dashboard_key', newKey);
+    localStorage.setItem('apapai_dashboard_role', newRole);
+    localStorage.setItem('apapai_dashboard_name', name);
+    const allowed = roleTabs[newRole];
+    setActiveTab(allowed.includes(activeTab) ? activeTab : allowed[0]);
+    loadDashboardData(newKey);
+  };
+
+  const handleLogout = () => {
+    setApiKey('');
+    setRole(null);
+    setUserName('');
+    localStorage.removeItem('apapai_dashboard_key');
+    localStorage.removeItem('apapai_dashboard_role');
+    localStorage.removeItem('apapai_dashboard_name');
+  };
+
+  // Restore session on mount and validate the stored key
+  useEffect(() => {
+    const checkAuth = async () => {
+      const storedKey = localStorage.getItem('apapai_dashboard_key');
+      if (!storedKey) {
+        setIsAuthChecking(false);
+        return;
+      }
+      try {
+        const res = await fetch('/v1/auth/whoami', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${storedKey}`,
+          },
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { id: string; name: string; role: UserRole };
+          setApiKey(storedKey);
+          setRole(data.role);
+          setUserName(data.name);
+          const allowed = roleTabs[data.role];
+          setActiveTab(allowed.includes(activeTab) ? activeTab : allowed[0]);
+          loadDashboardData(storedKey);
+        } else {
+          localStorage.removeItem('apapai_dashboard_key');
+        }
       } catch (err) {
-        console.error('Failed to load dashboard data', err);
+        console.error('Auth check failed', err);
+      } finally {
+        setIsAuthChecking(false);
       }
     };
 
-    loadData();
+    checkAuth();
 
     const healthInterval = setInterval(async () => {
+      if (!apiKey) return;
       try {
-        const res = await fetch('/health');
+        const res = await fetch('/health', { headers: { Authorization: `Bearer ${apiKey}` } });
         if (res.ok) {
           const data = (await res.json()) as ServerHealth;
           setHealth(data);
@@ -66,12 +141,13 @@ export function App() {
     }, 5000);
 
     return () => clearInterval(healthInterval);
-  }, []);
+  }, [apiKey]);
 
   const handleRefreshHealth = async () => {
+    if (!apiKey) return;
     setIsRefreshingHealth(true);
     try {
-      const res = await fetch('/health');
+      const res = await fetch('/health', { headers: { Authorization: `Bearer ${apiKey}` } });
       if (res.ok) {
         const data = (await res.json()) as ServerHealth;
         setHealth(data);
@@ -133,6 +209,21 @@ export function App() {
     setActiveTab('playground');
   };
 
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">Checking session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!role) {
+    return <LoginView onLogin={handleLogin} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950 font-sans">
       {/* Global Header */}
@@ -148,13 +239,14 @@ export function App() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          role={role}
           appsCount={apps.length}
           templatesCount={templates.length}
           logsCount={logs.length}
         />
 
         <main className="flex-1 overflow-y-auto p-6 lg:p-10 max-w-8xl mx-auto w-full">
-          {activeTab === 'dashboard' && (
+          {activeTab === 'dashboard' && isTabAllowed('dashboard', role) && (
             <DashboardView
               health={health}
               apps={apps}
@@ -166,15 +258,16 @@ export function App() {
             />
           )}
 
-          {activeTab === 'playground' && (
+          {activeTab === 'playground' && isTabAllowed('playground', role) && (
             <PlaygroundView
               apps={apps}
               templates={templates}
+              apiKey={apiKey}
               onLogRequest={handleLogRequest}
             />
           )}
 
-          {activeTab === 'apps' && (
+          {activeTab === 'apps' && isTabAllowed('apps', role) && (
             <AppsView
               apps={apps}
               onAddApp={handleAddApp}
@@ -183,7 +276,7 @@ export function App() {
             />
           )}
 
-          {activeTab === 'templates' && (
+          {activeTab === 'templates' && isTabAllowed('templates', role) && (
             <TemplatesView
               templates={templates}
               onAddTemplate={handleAddTemplate}
@@ -193,21 +286,22 @@ export function App() {
             />
           )}
 
-          {activeTab === 'logs' && (
+          {activeTab === 'logs' && isTabAllowed('logs', role) && (
             <LogsView logs={logs} apps={apps} />
           )}
 
-          {activeTab === 'ecosystem' && (
+          {activeTab === 'ecosystem' && isTabAllowed('ecosystem', role) && (
             <EcosystemDemosView
               apps={apps}
               templates={templates}
+              apiKey={apiKey}
               onLogRequest={handleLogRequest}
             />
           )}
 
-          {activeTab === 'admin-chat' && <AdminChatView />}
+          {activeTab === 'admin-chat' && isTabAllowed('admin-chat', role) && <AdminChatView />}
 
-          {activeTab === 'deployment' && (
+          {activeTab === 'deployment' && isTabAllowed('deployment', role) && (
             <DeploymentView
               deploymentSteps={deploymentSteps}
               onToggleStep={handleToggleDeploymentStep}

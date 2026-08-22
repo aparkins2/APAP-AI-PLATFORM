@@ -24,12 +24,14 @@ import confetti from 'canvas-confetti';
 interface EcosystemDemosViewProps {
   apps: AppEntity[];
   templates: PromptTemplate[];
+  apiKey: string;
   onLogRequest: (log: any) => void;
 }
 
 export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
   apps,
   templates,
+  apiKey: userApiKey,
   onLogRequest,
 }) => {
   const [activeDemo, setActiveDemo] = useState<'chat' | 'multistream' | 'radio' | 'runofshow'>('chat');
@@ -118,8 +120,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     setSuggestedReply('');
     setModerationResult(null);
 
-    const chatApp = apps.find((a) => a.slug === 'apap-chat') || apps[0];
-    const apiKey = chatApp.apiKey;
+    const apiKey = userApiKey;
 
     const res = await callGateway(
       {
@@ -148,8 +149,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     setSelectedComment(comment);
     setIsGeneratingReply(true);
 
-    const chatApp = apps.find((a) => a.slug === 'apap-chat') || apps[0];
-    const apiKey = chatApp.apiKey;
+    const apiKey = userApiKey;
 
     const res = await callGateway(
       {
@@ -198,8 +198,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
     setIsGeneratingMetadata(true);
     setGeneratedMetadata(null);
 
-    const msApp = apps.find((a) => a.slug === 'apap-multistream') || apps[0];
-    const apiKey = msApp.apiKey;
+    const apiKey = userApiKey;
 
     // Generate Titles
     const titlesRes = await callGateway(
@@ -276,8 +275,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
   // 4. RadioHub Liners
   const handleGenerateRadioLiners = async () => {
     setIsGeneratingLiners(true);
-    const radioApp = apps.find((a) => a.slug === 'radiohub-pro') || apps[0];
-    const apiKey = radioApp.apiKey;
+    const apiKey = userApiKey;
 
     const res = await callGateway(
       {
@@ -303,8 +301,7 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
   // 5. Run of Show
   const handleGenerateRos = async () => {
     setIsGeneratingRos(true);
-    const rosApp = apps.find((a) => a.slug === 'run-of-show') || apps[0];
-    const apiKey = rosApp.apiKey;
+    const apiKey = userApiKey;
 
     const res = await callGateway(
       {

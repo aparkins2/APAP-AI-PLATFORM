@@ -21,17 +21,19 @@ import confetti from 'canvas-confetti';
 interface PlaygroundViewProps {
   apps: AppEntity[];
   templates: PromptTemplate[];
+  apiKey: string;
   onLogRequest: (log: RequestLog) => void;
 }
 
 export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
   apps,
   templates,
+  apiKey: userApiKey,
   onLogRequest,
 }) => {
   const [selectedTask, setSelectedTask] = useState<string>('stream-title');
   const [selectedAppId, setSelectedAppId] = useState<string>(apps[0]?.id || '');
-  const [apiKeyInput, setApiKeyInput] = useState<string>(apps[0]?.apiKey || '');
+  const [apiKeyInput, setApiKeyInput] = useState<string>(userApiKey || apps[0]?.apiKey || '');
   const [modelClassOverride, setModelClassOverride] = useState<ModelClass | 'auto'>('auto');
   const [temperature, setTemperature] = useState<number>(0.3);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -75,10 +77,6 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
 
   const handleAppSelect = (appId: string) => {
     setSelectedAppId(appId);
-    const app = apps.find((a) => a.id === appId);
-    if (app) {
-      setApiKeyInput(app.apiKey);
-    }
   };
 
   const handleExecute = async () => {

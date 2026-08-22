@@ -1,5 +1,27 @@
 export type ModelClass = 'fast' | 'smart' | 'embedding';
 
+export type UserRole =
+  | 'administrator'
+  | 'engineer'
+  | 'broadcast-operator'
+  | 'community-moderator'
+  | 'standard-user';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  apiKeyHash: string;
+  apiKey?: string;
+  apiKeyPrefix: string;
+  active: boolean;
+  rateLimitPerMinute: number;
+  createdAt: string;
+  updatedAt: string;
+  lastActiveAt?: string;
+}
+
 export interface AppEntity {
   id: string;
   name: string;

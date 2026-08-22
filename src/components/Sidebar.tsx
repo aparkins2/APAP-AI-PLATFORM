@@ -24,9 +24,12 @@ export type NavTab =
   | 'admin-chat'
   | 'deployment';
 
+import type { UserRole } from '../types';
+
 interface SidebarProps {
   activeTab: NavTab;
   setActiveTab: (tab: NavTab) => void;
+  role: UserRole | null;
   appsCount: number;
   templatesCount: number;
   logsCount: number;
@@ -35,10 +38,21 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
+  role,
   appsCount,
   templatesCount,
   logsCount,
 }) => {
+  const rolePermissions: Record<UserRole, NavTab[]> = {
+    administrator: ['dashboard', 'playground', 'apps', 'templates', 'logs', 'ecosystem', 'admin-chat', 'deployment'],
+    engineer: ['dashboard', 'playground', 'apps', 'templates', 'logs', 'deployment'],
+    'broadcast-operator': ['dashboard', 'playground', 'templates', 'ecosystem'],
+    'community-moderator': ['dashboard', 'playground', 'logs', 'admin-chat'],
+    'standard-user': ['playground'],
+  };
+
+  const allowedTabs = role ? rolePermissions[role] : [];
+
   const navItems: {
     id: NavTab;
     label: string;
@@ -106,130 +120,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
+  const visibleItems = navItems.filter((item) => allowedTabs.includes(item.id));
+
   return (
     <aside className="w-full md:w-72 bg-slate-900/95 border-r border-slate-800 flex flex-col shrink-0">
       <div className="p-3 space-y-6 flex-1">
-        <div>
-          <div className="text-sm font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
-            Gateway Engine
+        {role && (
+          <div className="px-3 mb-4">
+            <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">Signed in as</div>
+            <div className="text-sm font-bold text-white capitalize">{role.replace(/-/g, ' ')}</div>
           </div>
-          <div className="space-y-1">
-            {navItems.slice(0, 5).map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon
-                      className={`w-4 h-4 ${
-                        isActive ? 'text-emerald-400' : 'text-slate-400'
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span
-                      className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
-                        item.badgeColor || 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-sm font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
-            Client Apps & UI
-          </div>
-          <div className="space-y-1">
-            {navItems.slice(5, 7).map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon
-                      className={`w-4 h-4 ${
-                        isActive ? 'text-emerald-400' : 'text-slate-400'
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span
-                      className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
-                        item.badgeColor || 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-sm font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
-            Infrastructure & Guide
-          </div>
-          <div className="space-y-1">
-            {navItems.slice(7).map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon
-                      className={`w-4 h-4 ${
-                        isActive ? 'text-emerald-400' : 'text-slate-400'
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span
-                      className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
-                        item.badgeColor || 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+        )}
+        <div className="space-y-1">
+          {visibleItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge !== undefined && (
+                  <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${item.badgeColor || 'bg-slate-800 text-slate-400'}`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
