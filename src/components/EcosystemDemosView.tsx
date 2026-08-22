@@ -671,9 +671,24 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
               </span>
 
               {generatedLiners ? (
-                <pre className="p-4 bg-slate-950 rounded-lg text-xs font-mono text-emerald-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
-                  {generatedLiners}
-                </pre>
+                <div className="space-y-2">
+                  <button
+                    onClick={() =>
+                      downloadPdf({
+                        task: 'dj-liner-intro',
+                        appName: 'RadioHub Pro',
+                        result: generatedLiners,
+                      })
+                    }
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-cyan-950 hover:bg-cyan-900 border border-cyan-700/50 text-cyan-300 text-xs font-medium cursor-pointer"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    Download PDF
+                  </button>
+                  <pre className="p-4 bg-slate-950 rounded-lg text-xs font-mono text-emerald-300 whitespace-pre-wrap leading-relaxed border border-slate-800">
+                    {generatedLiners}
+                  </pre>
+                </div>
               ) : (
                 <div className="h-48 flex items-center justify-center text-slate-500 text-xs">
                   Configure DJ booth parameters and click generate.

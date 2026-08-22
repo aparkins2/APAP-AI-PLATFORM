@@ -394,7 +394,7 @@ print(response.json())`;
                 Response Payload
               </span>
               <div className="flex items-center gap-2">
-                {responseStatus === 200 && ['run-of-show', 'guest-introduction', 'podcast-summary'].includes(selectedTask) && responseOutput && (
+                {responseStatus === 200 && ['run-of-show', 'guest-introduction', 'podcast-summary', 'dj-liner-intro'].includes(selectedTask) && responseOutput && (
                   <button
                     onClick={() =>
                       downloadPdf({
