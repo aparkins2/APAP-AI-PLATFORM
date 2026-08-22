@@ -101,7 +101,10 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
           modelClassOverride: modelClassOverride === 'auto' ? undefined : modelClassOverride,
         }),
       });
-      const result = await res.json();
+      const contentType = res.headers.get('content-type') || '';
+      const result = contentType.includes('application/json')
+        ? await res.json()
+        : { success: false, error: `Gateway error: ${res.status} ${res.statusText || 'Timeout'}`, statusCode: res.status };
 
       setResponseOutput(result.result || result.error);
       setResponseStatus(result.statusCode);

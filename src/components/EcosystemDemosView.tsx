@@ -104,7 +104,11 @@ export const EcosystemDemosView: React.FC<EcosystemDemosViewProps> = ({
       },
       body: JSON.stringify({ task: payload.task, input: payload.input }),
     });
-    return res.json();
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      return res.json();
+    }
+    return { success: false, error: `Gateway error: ${res.status} ${res.statusText || 'Timeout'}`, statusCode: res.status };
   };
 
   // 1. Trigger APAP Chat Suggested Reply
