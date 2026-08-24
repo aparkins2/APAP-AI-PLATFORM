@@ -25,6 +25,7 @@ export function App() {
   const [role, setRole] = useState<UserRole | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [isAuthChecking, setIsAuthChecking] = useState<boolean>(true);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [health, setHealth] = useState<ServerHealth>(INITIAL_HEALTH);
   const [isRefreshingHealth, setIsRefreshingHealth] = useState<boolean>(false);
@@ -235,14 +236,19 @@ export function App() {
         userName={userName}
         role={role}
         onLogout={handleLogout}
+        onMenuClick={() => setSidebarOpen((o) => !o)}
       />
 
       {/* App Body with Sidebar */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="relative flex-1 flex flex-col md:flex-row overflow-hidden">
         <Sidebar
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={(tab) => {
+            setActiveTab(tab);
+            setSidebarOpen(false);
+          }}
           role={role}
+          isOpen={sidebarOpen}
           appsCount={apps.length}
           templatesCount={templates.length}
           logsCount={logs.length}

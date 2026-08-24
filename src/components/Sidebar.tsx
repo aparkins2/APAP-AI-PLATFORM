@@ -30,6 +30,7 @@ interface SidebarProps {
   activeTab: NavTab;
   setActiveTab: (tab: NavTab) => void;
   role: UserRole | null;
+  isOpen?: boolean;
   appsCount: number;
   templatesCount: number;
   logsCount: number;
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   role,
+  isOpen,
   appsCount,
   templatesCount,
   logsCount,
@@ -123,7 +125,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const visibleItems = navItems.filter((item) => allowedTabs.includes(item.id));
 
   return (
-    <aside className="w-full md:w-72 bg-slate-900/95 border-r border-slate-800 flex flex-col shrink-0">
+    <aside
+      className={`w-full md:w-72 bg-slate-900/95 border-r border-slate-800 flex-col shrink-0 absolute md:relative z-30 h-full md:h-auto transition-all ${
+        isOpen ? 'flex' : 'hidden'
+      } md:flex`}
+    >
       <div className="p-3 space-y-6 flex-1">
         {role && (
           <div className="px-3 mb-4">

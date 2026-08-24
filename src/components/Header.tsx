@@ -1,6 +1,6 @@
 import React from 'react';
 import { ServerHealth, UserRole } from '../types';
-import { Server, Activity, ShieldCheck, Cpu, HardDrive, Zap, Radio, LogOut, UserCircle2 } from 'lucide-react';
+import { Server, Activity, ShieldCheck, Cpu, HardDrive, Zap, Radio, LogOut, UserCircle2, Menu } from 'lucide-react';
 
 interface HeaderProps {
   health: ServerHealth;
@@ -10,6 +10,7 @@ interface HeaderProps {
   userName?: string;
   role?: UserRole | null;
   onLogout?: () => void;
+  onMenuClick?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,11 +21,21 @@ export const Header: React.FC<HeaderProps> = ({
   userName,
   role,
   onLogout,
+  onMenuClick,
 }) => {
   return (
     <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 lg:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       {/* Brand & Identity */}
       <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="md:hidden p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all"
+            aria-label="Toggle navigation"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 shadow-lg shadow-emerald-500/20">
           <Server className="w-5 h-5 text-white" />
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
