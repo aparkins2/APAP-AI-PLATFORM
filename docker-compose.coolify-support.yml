@@ -60,16 +60,14 @@ services:
 
   # Web-based file manager for the whole VPS (https://files126.apapmedia.com)
   tinyfilemanager:
-    image: zhangsean/tinyfilemanager:latest
+    image: tinyfilemanager/tinyfilemanager:master
     container_name: apap-tinyfilemanager
     restart: unless-stopped
     user: "0:0"
-    environment:
-      - FM_PSW_ADMIN=admin
     expose:
       - "80"
     volumes:
-      - "/:/tfm/data"
+      - "/:/var/www/html/data"
     networks:
       - apap-ai-network
     labels:
