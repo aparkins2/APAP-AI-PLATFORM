@@ -66,6 +66,10 @@ services:
     user: "0:0"
     ports:
       - "0.0.0.0:8081:80"
+    environment:
+      - FB_USERNAME=admin
+      - FB_PASSWORD=admin
+      - FB_ROOT=/srv
     volumes:
       - "/:/srv"
       - filebrowser_data:/database
