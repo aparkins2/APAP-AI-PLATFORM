@@ -58,22 +58,18 @@ services:
     networks:
       - apap-ai-network
 
-  # Web-based file manager for the whole VPS (http://162.35.105.126:8081)
-  filebrowser:
-    image: filebrowser/filebrowser:latest
-    container_name: apap-filebrowser
+  # Web-based file manager for the whole VPS (https://files126.apapmedia.com)
+  tinyfilemanager:
+    image: zhangsean/tinyfilemanager:latest
+    container_name: apap-tinyfilemanager
     restart: unless-stopped
     user: "0:0"
     environment:
-      - FB_USERNAME=admin
-      - FB_PASSWORD=admin
-      - FB_ROOT=/srv
+      - FM_PSW_ADMIN=admin
     expose:
       - "80"
     volumes:
-      - "/:/srv"
-      - filebrowser_data:/database
-      - filebrowser_config:/config
+      - "/:/tfm/data"
     networks:
       - apap-ai-network
     labels:
@@ -81,16 +77,16 @@ services:
       - "coolify.domain=https://files126.apapmedia.com"
       - "traefik.enable=true"
       - "traefik.docker.network=yblfek5kwt3czuewj2wvoxhw"
-      - "traefik.http.routers.http-0-apap-filebrowser.entryPoints=http"
-      - "traefik.http.routers.http-0-apap-filebrowser.rule=Host(`files126.apapmedia.com`) && PathPrefix(`/`)"
-      - "traefik.http.routers.http-0-apap-filebrowser.service=http-0-apap-filebrowser"
-      - "traefik.http.routers.https-0-apap-filebrowser.entryPoints=https"
-      - "traefik.http.routers.https-0-apap-filebrowser.rule=Host(`files126.apapmedia.com`) && PathPrefix(`/`)"
-      - "traefik.http.routers.https-0-apap-filebrowser.tls=true"
-      - "traefik.http.routers.https-0-apap-filebrowser.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.https-0-apap-filebrowser.service=https-0-apap-filebrowser"
-      - "traefik.http.services.http-0-apap-filebrowser.loadbalancer.server.port=80"
-      - "traefik.http.services.https-0-apap-filebrowser.loadbalancer.server.port=80"
+      - "traefik.http.routers.http-0-apap-tinyfilemanager.entryPoints=http"
+      - "traefik.http.routers.http-0-apap-tinyfilemanager.rule=Host(`files126.apapmedia.com`) && PathPrefix(`/`)"
+      - "traefik.http.routers.http-0-apap-tinyfilemanager.service=http-0-apap-tinyfilemanager"
+      - "traefik.http.routers.https-0-apap-tinyfilemanager.entryPoints=https"
+      - "traefik.http.routers.https-0-apap-tinyfilemanager.rule=Host(`files126.apapmedia.com`) && PathPrefix(`/`)"
+      - "traefik.http.routers.https-0-apap-tinyfilemanager.tls=true"
+      - "traefik.http.routers.https-0-apap-tinyfilemanager.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.https-0-apap-tinyfilemanager.service=https-0-apap-tinyfilemanager"
+      - "traefik.http.services.http-0-apap-tinyfilemanager.loadbalancer.server.port=80"
+      - "traefik.http.services.https-0-apap-tinyfilemanager.loadbalancer.server.port=80"
 
 networks:
   apap-ai-network:
@@ -101,5 +97,3 @@ volumes:
   ollama_data:
   open_webui_data:
   redis_data:
-  filebrowser_data:
-  filebrowser_config:
