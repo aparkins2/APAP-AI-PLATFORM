@@ -58,6 +58,23 @@ services:
     networks:
       - apap-ai-network
 
+  # Web-based file manager for the whole VPS (http://162.35.105.126:8081)
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: apap-filebrowser
+    restart: unless-stopped
+    user: "0:0"
+    ports:
+      - "0.0.0.0:8081:80"
+    volumes:
+      - "/:/srv"
+      - filebrowser_data:/database
+      - filebrowser_config:/config
+    networks:
+      - apap-ai-network
+    labels:
+      - "coolify.managed=true"
+
 networks:
   apap-ai-network:
     name: apap-ai-network
@@ -67,3 +84,5 @@ volumes:
   ollama_data:
   open_webui_data:
   redis_data:
+  filebrowser_data:
+  filebrowser_config:
