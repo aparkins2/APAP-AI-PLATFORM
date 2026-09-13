@@ -64,12 +64,12 @@ services:
     container_name: apap-filebrowser
     restart: unless-stopped
     user: "0:0"
-    ports:
-      - "0.0.0.0:8081:80"
     environment:
       - FB_USERNAME=admin
       - FB_PASSWORD=admin
       - FB_ROOT=/srv
+    expose:
+      - "80"
     volumes:
       - "/:/srv"
       - filebrowser_data:/database
@@ -78,6 +78,7 @@ services:
       - apap-ai-network
     labels:
       - "coolify.managed=true"
+      - "coolify.domain=https://files126.apapmedia.com"
 
 networks:
   apap-ai-network:
